@@ -29,81 +29,81 @@ fun CreateSessionScreen(
     onBackClick: () -> Unit,
     onSessionCreated: (String) -> Unit
 ){
-    var hostName by remember { mutableStateOf("") }
-    var sessionCode by remember { mutableStateOf<String?>(null) }
+    var hostName by remember {mutableStateOf("")}
+    var sessionCode by remember {mutableStateOf<String?>(null)}
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalArrangement=Arrangement.Center,
+        horizontalAlignment=Alignment.CenterHorizontally
     ){
         Text(
-            text = "Create Group Order",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+            text="Create Group Order",
+            style=MaterialTheme.typography.headlineMedium,
+            fontWeight=FontWeight.Bold
         )
         Text(
-            text = "Start a session and invite your friends.",
-            modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
+            text="Start a session and invite your friends.",
+            modifier=Modifier.padding(top = 8.dp, bottom = 24.dp)
         )
         OutlinedTextField(
             value=hostName,
             onValueChange={hostName=it},
-            label ={Text("Your name")},
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+            label={Text("Your name")},
+            singleLine=true,
+            modifier=Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier=Modifier.height(16.dp))
         Button(
-            onClick = {
-                val code = generateSessionCode()
-                sessionCode = code
+            onClick={
+                val code=generateSessionCode()
+                sessionCode=code
                 onSessionCreated(code)
             },
-            enabled = hostName.trim().isNotEmpty(),
-            modifier = Modifier.fillMaxWidth()
+            enabled=hostName.trim().isNotEmpty(),
+            modifier=Modifier.fillMaxWidth()
         ){
             Text("Create Session")
         }
-        if (sessionCode != null) {
-            Spacer(modifier = Modifier.height(24.dp))
+        if(sessionCode!=null){
+            Spacer(modifier=Modifier.height(24.dp))
             Card(
-                modifier = Modifier.fillMaxWidth()
+                modifier=Modifier.fillMaxWidth()
             ){
                 Column(
-                    modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier=Modifier.padding(20.dp),
+                    horizontalAlignment=Alignment.CenterHorizontally
                 ){
                     Text(
-                        text = "Session Code",
-                        style = MaterialTheme.typography.titleMedium
+                        text="Session Code",
+                        style=MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = sessionCode ?: "",
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = 8.dp)
+                        text=sessionCode ?: "",
+                        style=MaterialTheme.typography.headlineLarge,
+                        fontWeight=FontWeight.Bold,
+                        modifier=Modifier.padding(top = 8.dp)
                     )
                     Text(
-                        text = "Share this code with your friends.",
-                        modifier = Modifier.padding(top = 8.dp)
+                        text="Share this code with your friends.",
+                        modifier=Modifier.padding(top = 8.dp)
                     )
                 }
             }
         }
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier=Modifier.height(24.dp))
         OutlinedButton(
-            onClick = onBackClick,
-            modifier = Modifier.fillMaxWidth()
+            onClick=onBackClick,
+            modifier=Modifier.fillMaxWidth()
         ){
             Text("Back")
         }
     }
 }
 
-private fun generateSessionCode(): String {
-    val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+private fun generateSessionCode(): String{
+    val chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     return (1..6)
         .map { chars[Random.nextInt(chars.length)] }
         .joinToString("")

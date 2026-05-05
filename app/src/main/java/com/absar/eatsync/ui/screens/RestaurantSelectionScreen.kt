@@ -23,15 +23,15 @@ data class DummyRestaurant(
     val name: String,
     val cuisine: String,
     val rating: String,
-    val deliveryTime: String
+    val deliveryTime:String
 )
 @Composable
 fun RestaurantSelectionScreen(
-    sessionCode: String,
-    onRestaurantSelected: (DummyRestaurant) -> Unit,
-    onBackClick: () -> Unit
+    sessionCode:String,
+    onRestaurantSelected:(DummyRestaurant)->Unit,
+    onBackClick:()->Unit
 ){
-    val restaurants = listOf(
+    val restaurants=listOf(
         DummyRestaurant("r1", "Pizza Hut", "Pizza, Fast Food", "4.2", "30-35 min"),
         DummyRestaurant("r2", "Burger King", "Burgers, Beverages", "4.1", "25-30 min"),
         DummyRestaurant("r3", "KFC", "Chicken, Fast Food", "4.0", "35-40 min"),
@@ -39,36 +39,36 @@ fun RestaurantSelectionScreen(
         DummyRestaurant("r5", "Wow! Momo", "Momos, Tibetan", "4.4", "20-25 min")
     )
     Column(
-        modifier = Modifier
+        modifier=Modifier
             .fillMaxSize()
             .padding(24.dp)
     ){
         Text(
-            text = "Select Restaurant",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+            text="Select Restaurant",
+            style=MaterialTheme.typography.headlineMedium,
+            fontWeight=FontWeight.Bold
         )
         Text(
-            text = "Session: $sessionCode",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(top = 4.dp, bottom = 20.dp)
+            text="Session: $sessionCode",
+            style=MaterialTheme.typography.bodyMedium,
+            modifier=Modifier.padding(top = 4.dp, bottom = 20.dp)
         )
         LazyColumn(
-            modifier = Modifier.weight(1f)
+            modifier=Modifier.weight(1f)
         ){
-            items(restaurants){ restaurant ->
+            items(restaurants){restaurant->
                 RestaurantCard(
                     restaurant=restaurant,
                     onClick={
                         onRestaurantSelected(restaurant)
                     }
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier=Modifier.height(12.dp))
             }
         }
         OutlinedButton(
-            onClick = onBackClick,
-            modifier = Modifier.fillMaxWidth()
+            onClick=onBackClick,
+            modifier=Modifier.fillMaxWidth()
         ){
             Text("Back")
         }
@@ -76,33 +76,33 @@ fun RestaurantSelectionScreen(
 }
 @Composable
 fun RestaurantCard(
-    restaurant: DummyRestaurant,
-    onClick: () -> Unit
+    restaurant:DummyRestaurant,
+    onClick:()->Unit
 ){
     Card(
-        modifier = Modifier
+        modifier=Modifier
             .fillMaxWidth()
             .clickable {
                 onClick()
             }
     ){
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier=Modifier.padding(16.dp)
         ) {
             Text(
-                text = restaurant.name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                text=restaurant.name,
+                style=MaterialTheme.typography.titleMedium,
+                fontWeight=FontWeight.Bold
             )
             Text(
-                text = restaurant.cuisine,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 4.dp)
+                text=restaurant.cuisine,
+                style=MaterialTheme.typography.bodyMedium,
+                modifier=Modifier.padding(top = 4.dp)
             )
             Text(
-                text = "⭐ ${restaurant.rating} • ${restaurant.deliveryTime}",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp)
+                text="⭐ ${restaurant.rating} • ${restaurant.deliveryTime}",
+                style=MaterialTheme.typography.bodySmall,
+                modifier=Modifier.padding(top = 8.dp)
             )
         }
     }

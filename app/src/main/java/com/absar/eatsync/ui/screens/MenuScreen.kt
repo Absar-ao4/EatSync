@@ -29,61 +29,63 @@ data class DummyMenuItem(
 
 @Composable
 fun MenuScreen(
-    sessionCode: String,
-    restaurantId: String,
-    restaurantName: String,
-    onAddItemClick: (DummyMenuItem) -> Unit,
-    onBackClick: () -> Unit
+    sessionCode:String,
+    restaurantId:String,
+    restaurantName:String,
+    onAddItemClick:(DummyMenuItem)->Unit,
+    onViewCartClick:()->Unit,
+    onBackClick:()->Unit
 ) {
-    val menuItems = listOf(
+    val menuItems=listOf(
         DummyMenuItem("m1", "Margherita Pizza", "Classic cheese pizza with tomato sauce", 299),
         DummyMenuItem("m2", "Farmhouse Pizza", "Loaded with capsicum, onion, tomato and cheese", 399),
         DummyMenuItem("m3", "Veg Burger", "Crispy veg patty with mayo and lettuce", 149),
         DummyMenuItem("m4", "French Fries", "Crispy salted fries", 129),
         DummyMenuItem("m5", "Cold Coffee", "Chilled coffee with ice cream", 179)
     )
-
     Column(
-        modifier = Modifier
+        modifier=Modifier
             .fillMaxSize()
             .padding(24.dp)
     ) {
         Text(
-            text = restaurantName,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+            text=restaurantName,
+            style=MaterialTheme.typography.headlineMedium,
+            fontWeight=FontWeight.Bold
         )
-
         Text(
-            text = "Session: $sessionCode",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(top = 4.dp)
+            text="Session: $sessionCode",
+            style=MaterialTheme.typography.bodyMedium,
+            modifier=Modifier.padding(top = 4.dp)
         )
-
         Text(
-            text = "Restaurant ID: $restaurantId",
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 2.dp, bottom = 20.dp)
+            text="Restaurant ID: $restaurantId",
+            style=MaterialTheme.typography.bodySmall,
+            modifier=Modifier.padding(top = 2.dp, bottom = 20.dp)
         )
-
         LazyColumn(
-            modifier = Modifier.weight(1f)
-        ) {
-            items(menuItems) { item ->
+            modifier=Modifier.weight(1f)
+        ){
+            items(menuItems){item->
                 MenuItemCard(
-                    item = item,
-                    onAddClick = {
+                    item=item,
+                    onAddClick={
                         onAddItemClick(item)
                     }
                 )
-
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier=Modifier.height(12.dp))
             }
         }
-
+        Button(
+            onClick=onViewCartClick,
+            modifier=Modifier.fillMaxWidth()
+        ) {
+            Text("View Shared Cart")
+        }
+        Spacer(modifier=Modifier.height(12.dp))
         OutlinedButton(
-            onClick = onBackClick,
-            modifier = Modifier.fillMaxWidth()
+            onClick=onBackClick,
+            modifier=Modifier.fillMaxWidth()
         ) {
             Text("Back")
         }
@@ -92,43 +94,40 @@ fun MenuScreen(
 
 @Composable
 fun MenuItemCard(
-    item: DummyMenuItem,
-    onAddClick: () -> Unit
+    item:DummyMenuItem,
+    onAddClick:()->Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier=Modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier
+            modifier=Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment=Alignment.CenterVertically
         ) {
             Column(
-                modifier = Modifier.weight(1f)
+                modifier=Modifier.weight(1f)
             ) {
                 Text(
-                    text = item.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    text=item.name,
+                    style=MaterialTheme.typography.titleMedium,
+                    fontWeight=FontWeight.Bold
                 )
-
                 Text(
-                    text = item.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 4.dp)
+                    text=item.description,
+                    style=MaterialTheme.typography.bodyMedium,
+                    modifier=Modifier.padding(top = 4.dp)
                 )
-
                 Text(
-                    text = "₹${item.price}",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 8.dp)
+                    text="₹${item.price}",
+                    style=MaterialTheme.typography.titleSmall,
+                    fontWeight=FontWeight.Bold,
+                    modifier=Modifier.padding(top = 8.dp)
                 )
             }
-
             Button(
-                onClick = onAddClick
+                onClick=onAddClick
             ) {
                 Text("Add")
             }

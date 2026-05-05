@@ -21,104 +21,92 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun WaitingRoomScreen(
-    sessionCode: String,
-    isHost: Boolean,
-    onSelectRestaurantClick: () -> Unit,
-    onBackClick: () -> Unit
+    sessionCode:String,
+    isHost:Boolean,
+    onSelectRestaurantClick:()->Unit,
+    onBackClick:()->Unit
 ) {
-    val dummyParticipants = listOf("Absar", "Lala", "Avro", "Ansh", "Aryan")
-
+    val dummyParticipants=listOf("Absar", "Lala", "Avro", "Ansh", "Aryan")
     Column(
-        modifier = Modifier
+        modifier=Modifier
             .fillMaxSize()
             .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+        verticalArrangement=Arrangement.Center,
+        horizontalAlignment=Alignment.CenterHorizontally
+    ){
         Text(
-            text = "Waiting Room",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+            text="Waiting Room",
+            style=MaterialTheme.typography.headlineMedium,
+            fontWeight=FontWeight.Bold
         )
-
         Text(
-            text = "Share this code with your friends.",
-            modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
+            text="Share this code with your friends.",
+            modifier=Modifier.padding(top = 8.dp, bottom = 24.dp)
         )
-
         Card(
-            modifier = Modifier.fillMaxWidth()
-        ) {
+            modifier=Modifier.fillMaxWidth()
+        ){
             Column(
-                modifier = Modifier.padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+                modifier=Modifier.padding(20.dp),
+                horizontalAlignment=Alignment.CenterHorizontally
+            ){
                 Text(
-                    text = "Session Code",
-                    style = MaterialTheme.typography.titleMedium
+                    text="Session Code",
+                    style=MaterialTheme.typography.titleMedium
                 )
-
                 Text(
-                    text = sessionCode,
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 8.dp)
+                    text=sessionCode,
+                    style=MaterialTheme.typography.headlineLarge,
+                    fontWeight=FontWeight.Bold,
+                    modifier=Modifier.padding(top = 8.dp)
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
+        Spacer(modifier=Modifier.height(20.dp))
         Card(
-            modifier = Modifier.fillMaxWidth()
-        ) {
+            modifier=Modifier.fillMaxWidth()
+        ){
             Column(
-                modifier = Modifier.padding(20.dp)
-            ) {
+                modifier=Modifier.padding(20.dp)
+            ){
                 Text(
-                    text = "Participants",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    text="Participants",
+                    style=MaterialTheme.typography.titleMedium,
+                    fontWeight=FontWeight.Bold
                 )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                dummyParticipants.forEach { name ->
+                Spacer(modifier=Modifier.height(12.dp))
+                dummyParticipants.forEach{name->
                     Row(
-                        modifier = Modifier
+                        modifier=Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 6.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = name)
-                        Text(text = "Joined")
+                            .padding(vertical=6.dp),
+                        horizontalArrangement=Arrangement.SpaceBetween
+                    ){
+                        Text(text=name)
+                        Text(text="Joined")
                     }
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        if (isHost) {
+        Spacer(modifier=Modifier.height(20.dp))
+        if(isHost){
             Button(
-                onClick = onSelectRestaurantClick,
-                modifier = Modifier.fillMaxWidth()
-            ) {
+                onClick=onSelectRestaurantClick,
+                modifier=Modifier.fillMaxWidth()
+            ){
                 Text("Select Restaurant")
             }
-        } else {
+        }else{
             Text(
-                text = "Waiting for host to select a restaurant...",
-                style = MaterialTheme.typography.bodyMedium
+                text="Waiting for host to select a restaurant...",
+                style=MaterialTheme.typography.bodyMedium
             )
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
+        Spacer(modifier=Modifier.height(16.dp))
         OutlinedButton(
-            onClick = onBackClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
+            onClick=onBackClick,
+            modifier=Modifier.fillMaxWidth()
+        ){
             Text("Back")
         }
     }

@@ -19,37 +19,37 @@ import androidx.compose.ui.unit.dp
 fun HomeScreen(
     onCreateSessionClick: () -> Unit,
     onJoinSessionClick: () -> Unit
-) {
+){
     Column(
-        modifier = Modifier
+        modifier=Modifier
             .fillMaxSize()
             .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalArrangement=Arrangement.Center,
+        horizontalAlignment=Alignment.CenterHorizontally
     ) {
         Text(
-            text = "EatSync",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold
+            text="EatSync",
+            style=MaterialTheme.typography.headlineLarge,
+            fontWeight=FontWeight.Bold
         )
         Text(
-            text = "Order food together. Split smarter.",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(top = 8.dp, bottom = 32.dp)
+            text="Order food together. Split smarter.",
+            style=MaterialTheme.typography.bodyLarge,
+            modifier=Modifier.padding(top = 8.dp, bottom = 32.dp)
         )
         Button(
-            onClick = onCreateSessionClick,
-            modifier = Modifier.fillMaxWidth()
+            onClick=onCreateSessionClick,
+            modifier=Modifier.fillMaxWidth()
         ) {
-            Text(text = "Create Group Order")
+            Text(text="Create Group Order")
         }
         OutlinedButton(
-            onClick = onJoinSessionClick,
-            modifier = Modifier
+            onClick=onJoinSessionClick,
+            modifier=Modifier
                 .fillMaxWidth()
-                .padding(top = 12.dp)
+                .padding(top=12.dp)
         ) {
-            Text(text = "Join Group Order")
+            Text(text="Join Group Order")
         }
     }
 }

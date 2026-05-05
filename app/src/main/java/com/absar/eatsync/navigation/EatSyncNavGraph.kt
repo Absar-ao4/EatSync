@@ -13,10 +13,16 @@ import com.absar.eatsync.ui.screens.WaitingRoomScreen
 import com.absar.eatsync.ui.screens.RestaurantSelectionScreen
 import com.absar.eatsync.ui.screens.MenuScreen
 import com.absar.eatsync.ui.screens.SharedCartScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.absar.eatsync.viewmodel.CartViewModel
 
 @Composable
 fun EatSyncNavGraph(){
     val navController=rememberNavController()
+    val cartViewModel: CartViewModel=viewModel()
+    val cartItems by cartViewModel.cartItems.collectAsState()
     NavHost(
         navController=navController,
         startDestination=Screen.Home.route
@@ -52,21 +58,21 @@ fun EatSyncNavGraph(){
             )
         }
         composable(
-            route = Screen.WaitingRoom.route,
-            arguments = listOf(
+            route=Screen.WaitingRoom.route,
+            arguments=listOf(
                 navArgument("sessionCode") {
-                    type = NavType.StringType
+                    type=NavType.StringType
                 },
                 navArgument("isHost") {
-                    type = NavType.BoolType
+                    type=NavType.BoolType
                 }
             )
         ){ backStackEntry ->
-            val sessionCode = backStackEntry.arguments?.getString("sessionCode") ?: ""
-            val isHost = backStackEntry.arguments?.getBoolean("isHost") ?: false
+            val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
+            val isHost=backStackEntry.arguments?.getBoolean("isHost") ?: false
             WaitingRoomScreen(
-                sessionCode = sessionCode,
-                isHost = isHost,
+                sessionCode=sessionCode,
+                isHost=isHost,
                 onSelectRestaurantClick={
                     navController.navigate(Screen.RestaurantSelection.createRoute(sessionCode))
                 },
@@ -76,89 +82,84 @@ fun EatSyncNavGraph(){
             )
         }
         composable(
-            route = Screen.RestaurantSelection.route,
-            arguments = listOf(
+            route=Screen.RestaurantSelection.route,
+            arguments=listOf(
                 navArgument("sessionCode") {
-                    type = NavType.StringType
+                    type=NavType.StringType
                 }
             )
         ){ backStackEntry ->
-            val sessionCode = backStackEntry.arguments?.getString("sessionCode") ?: ""
+            val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
             RestaurantSelectionScreen(
-                sessionCode = sessionCode,
-                onRestaurantSelected = { restaurant ->
+                sessionCode=sessionCode,
+                onRestaurantSelected={ restaurant ->
                     navController.navigate(
                         Screen.Menu.createRoute(
-                            sessionCode = sessionCode,
-                            restaurantId = restaurant.id,
-                            restaurantName = restaurant.name
+                            sessionCode=sessionCode,
+                            restaurantId=restaurant.id,
+                            restaurantName=restaurant.name
                         )
                     )
                 },
-                onBackClick = {
+                onBackClick={
                     navController.popBackStack()
                 }
             )
         }
         composable(
-            route = Screen.Menu.route,
-            arguments = listOf(
+            route=Screen.Menu.route,
+            arguments=listOf(
                 navArgument("sessionCode") {
-                    type = NavType.StringType
+                    type=NavType.StringType
                 },
                 navArgument("restaurantId") {
-                    type = NavType.StringType
+                    type=NavType.StringType
                 },
-                navArgument("restaurantName") {
-                    type = NavType.StringType
+                navArgument("restaurantName"){
+                    type=NavType.StringType
                 }
             )
-        ) { backStackEntry ->
-            val sessionCode = backStackEntry.arguments?.getString("sessionCode") ?: ""
-            val restaurantId = backStackEntry.arguments?.getString("restaurantId") ?: ""
-            val restaurantName = backStackEntry.arguments?.getString("restaurantName") ?: ""
-
+        ){ backStackEntry ->
+            val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
+            val restaurantId=backStackEntry.arguments?.getString("restaurantId") ?: ""
+            val restaurantName=backStackEntry.arguments?.getString("restaurantName") ?: ""
             MenuScreen(
-                sessionCode = sessionCode,
-                restaurantId = restaurantId,
-                restaurantName = restaurantName,
-                onAddItemClick = { item ->
-                    navController.navigate(
-                        Screen.SharedCart.createRoute(
-                            sessionCode = sessionCode,
-                            itemName = item.name,
-                            itemPrice = item.price
-                        )
-                    )
+                sessionCode=sessionCode,
+                restaurantId=restaurantId,
+                restaurantName=restaurantName,
+                onAddItemClick={ item ->
+                    cartViewModel.addItem(item)
                 },
-                onBackClick = {
+                onViewCartClick={
+                    navController.navigate(Screen.SharedCart.createRoute(sessionCode))
+                },
+                onBackClick={
                     navController.popBackStack()
                 }
             )
         }
         composable(
-            route = Screen.SharedCart.route,
-            arguments = listOf(
+            route=Screen.SharedCart.route,
+            arguments=listOf(
                 navArgument("sessionCode") {
-                    type = NavType.StringType
-                },
-                navArgument("itemName") {
-                    type = NavType.StringType
-                },
-                navArgument("itemPrice") {
-                    type = NavType.IntType
+                    type=NavType.StringType
                 }
             )
-        ) { backStackEntry ->
-            val sessionCode = backStackEntry.arguments?.getString("sessionCode") ?: ""
-            val itemName = backStackEntry.arguments?.getString("itemName") ?: ""
-            val itemPrice = backStackEntry.arguments?.getInt("itemPrice") ?: 0
-
+        ){ backStackEntry ->
+            val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
             SharedCartScreen(
-                sessionCode = sessionCode,
-                itemName = itemName,
-                itemPrice = itemPrice,
-                onBackClick = {
+                sessionCode=sessionCode,
+                cartItems=cartItems,
+                onIncreaseQuantity={ itemId ->
+                    cartViewModel.increaseQuantity(itemId)
+                },
+                onDecreaseQuantity={ itemId->
+                    cartViewModel.decreaseQuantity(itemId)
+                },
+                onRemoveItem={ itemId ->
+                    cartViewModel.removeItem(itemId)
+                },
+                onBackClick={
                     navController.popBackStack()
                 }
             )
