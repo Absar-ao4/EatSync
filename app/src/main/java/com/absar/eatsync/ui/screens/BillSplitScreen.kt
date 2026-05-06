@@ -16,24 +16,22 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateSetOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.absar.eatsync.model.CartItem
 import com.absar.eatsync.model.UserBill
+import com.absar.eatsync.model.Participant
 
 @Composable
 fun BillSplitScreen(
     sessionCode: String,
     cartItems: List<CartItem>,
+    participants: List<Participant>,
+    onToggleReady: (String) -> Unit,
     onBackClick: () -> Unit
-) {
-    val participants = listOf("Absar", "Lala", "Avro", "Ansh", "Aryan")
-    val readyUsers = remember { mutableStateSetOf<String>() }
-
+){
     val deliveryFee=if(cartItems.isEmpty()) 0
                     else 40
     val platformFee=if(cartItems.isEmpty()) 0
@@ -44,19 +42,20 @@ fun BillSplitScreen(
     }else{
         0
     }
-    val userBills=participants.map{participantName->
-        val itemTotal=cartItems
-            .filter{it.addedByName==participantName}
-            .sumOf{it.price * it.quantity}
+    val userBills = participants.map { participant ->
+        val itemTotal = cartItems
+            .filter { it.addedByName == participant.name }
+            .sumOf { it.price * it.quantity }
         UserBill(
-            userName=participantName,
-            itemTotal=itemTotal,
-            sharedCharges=sharedChargePerUser,
-            finalAmount=itemTotal+sharedChargePerUser
+            userName = participant.name,
+            itemTotal = itemTotal,
+            sharedCharges = sharedChargePerUser,
+            finalAmount = itemTotal + sharedChargePerUser
         )
     }
     val grandTotal=userBills.sumOf{it.finalAmount}
-    val allReady=readyUsers.size==participants.size
+    val readyCount=participants.count{it.isReady}
+    val allReady=participants.isNotEmpty()&&readyCount==participants.size
     Column(
         modifier=Modifier
             .fillMaxSize()
@@ -95,15 +94,12 @@ fun BillSplitScreen(
             modifier=Modifier.weight(1f)
         ){
             items(userBills){bill->
+                val participant=participants.firstOrNull{it.name == bill.userName}
                 UserBillCard(
                     bill=bill,
-                    isReady=readyUsers.contains(bill.userName),
+                    isReady=participant?.isReady==true,
                     onReadyClick={
-                        if(readyUsers.contains(bill.userName)){
-                            readyUsers.remove(bill.userName)
-                        }else{
-                            readyUsers.add(bill.userName)
-                        }
+                        onToggleReady(bill.userName)
                     }
                 )
                 Spacer(modifier=Modifier.height(12.dp))
@@ -123,7 +119,7 @@ fun BillSplitScreen(
                     text=if(allReady){
                         "Everyone is ready. Host can proceed to checkout."
                     }else{
-                        "${readyUsers.size}/${participants.size} users ready"
+                        "$readyCount/${participants.size} users ready"
                     },
                     style=MaterialTheme.typography.bodyMedium,
                     fontWeight=FontWeight.Bold

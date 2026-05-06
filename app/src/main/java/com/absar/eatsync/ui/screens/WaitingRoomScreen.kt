@@ -17,16 +17,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import com.absar.eatsync.model.Participant
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun WaitingRoomScreen(
-    sessionCode:String,
-    isHost:Boolean,
-    onSelectRestaurantClick:()->Unit,
-    onBackClick:()->Unit
-) {
-    val dummyParticipants=listOf("Absar", "Lala", "Avro", "Ansh", "Aryan")
+    sessionCode: String,
+    isHost: Boolean,
+    participants: List<Participant>,
+    onSelectRestaurantClick: () -> Unit,
+    onBackClick: () -> Unit
+){
+
     Column(
         modifier=Modifier
             .fillMaxSize()
@@ -75,15 +77,22 @@ fun WaitingRoomScreen(
                     fontWeight=FontWeight.Bold
                 )
                 Spacer(modifier=Modifier.height(12.dp))
-                dummyParticipants.forEach{name->
+                participants.forEach{participant->
                     Row(
                         modifier=Modifier
                             .fillMaxWidth()
                             .padding(vertical=6.dp),
                         horizontalArrangement=Arrangement.SpaceBetween
-                    ){
-                        Text(text=name)
-                        Text(text="Joined")
+                    ) {
+                        Text(text=participant.name)
+
+                        Text(
+                            text=if(participant.isHost){
+                                "Host"
+                            }else{
+                                "Joined"
+                            }
+                        )
                     }
                 }
             }

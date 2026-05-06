@@ -18,11 +18,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.absar.eatsync.viewmodel.CartViewModel
 import com.absar.eatsync.ui.screens.BillSplitScreen
+import com.absar.eatsync.viewmodel.SessionViewModel
 
 @Composable
 fun EatSyncNavGraph(){
     val navController=rememberNavController()
     val cartViewModel: CartViewModel=viewModel()
+    val sessionViewModel: SessionViewModel = viewModel()
+    val participants by sessionViewModel.participants.collectAsState()
     val cartItems by cartViewModel.cartItems.collectAsState()
     NavHost(
         navController=navController,
@@ -43,7 +46,8 @@ fun EatSyncNavGraph(){
                 onBackClick={
                     navController.popBackStack()
                 },
-                onSessionCreated={sessionCode->
+                onSessionCreated = { sessionCode, hostName ->
+                    sessionViewModel.createLocalSession(hostName)
                     navController.navigate(Screen.WaitingRoom.createRoute(sessionCode, true))
                 }
             )
@@ -53,7 +57,8 @@ fun EatSyncNavGraph(){
                 onBackClick={
                     navController.popBackStack()
                 },
-                onSessionJoined={sessionCode->
+                onSessionJoined = { sessionCode, userName ->
+                    sessionViewModel.joinLocalSession(userName)
                     navController.navigate(Screen.WaitingRoom.createRoute(sessionCode, false))
                 }
             )
@@ -72,12 +77,13 @@ fun EatSyncNavGraph(){
             val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
             val isHost=backStackEntry.arguments?.getBoolean("isHost") ?: false
             WaitingRoomScreen(
-                sessionCode=sessionCode,
-                isHost=isHost,
-                onSelectRestaurantClick={
+                sessionCode = sessionCode,
+                isHost = isHost,
+                participants = participants,
+                onSelectRestaurantClick = {
                     navController.navigate(Screen.RestaurantSelection.createRoute(sessionCode))
                 },
-                onBackClick={
+                onBackClick = {
                     navController.popBackStack()
                 }
             )
@@ -179,9 +185,13 @@ fun EatSyncNavGraph(){
         ){ backStackEntry->
             val sessionCode = backStackEntry.arguments?.getString("sessionCode") ?: ""
             BillSplitScreen(
-                sessionCode=sessionCode,
-                cartItems=cartItems,
-                onBackClick={
+                sessionCode = sessionCode,
+                cartItems = cartItems,
+                participants = participants,
+                onToggleReady = { userName ->
+                    sessionViewModel.toggleReady(userName)
+                },
+                onBackClick = {
                     navController.popBackStack()
                 }
             )

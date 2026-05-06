@@ -28,7 +28,7 @@ import java.util.Locale
 @Composable
 fun JoinSessionScreen(
     onBackClick: () -> Unit,
-    onSessionJoined: (String) -> Unit
+    onSessionJoined: (String, String) -> Unit
 ){
     var userName by remember { mutableStateOf("") }
     var sessionCode by remember { mutableStateOf("") }
@@ -74,7 +74,7 @@ fun JoinSessionScreen(
         Button(
             onClick={
                 joinedCode=sessionCode
-                onSessionJoined(sessionCode)
+                onSessionJoined(sessionCode,userName.trim())
             },
             enabled=isJoinEnabled,
             modifier=Modifier.fillMaxWidth()

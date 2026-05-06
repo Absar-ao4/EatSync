@@ -27,12 +27,12 @@ import kotlin.random.Random
 @Composable
 fun CreateSessionScreen(
     onBackClick: () -> Unit,
-    onSessionCreated: (String) -> Unit
+    onSessionCreated: (String, String) -> Unit
 ){
     var hostName by remember {mutableStateOf("")}
     var sessionCode by remember {mutableStateOf<String?>(null)}
     Column(
-        modifier = Modifier
+        modifier=Modifier
             .fillMaxSize()
             .padding(24.dp),
         verticalArrangement=Arrangement.Center,
@@ -59,7 +59,7 @@ fun CreateSessionScreen(
             onClick={
                 val code=generateSessionCode()
                 sessionCode=code
-                onSessionCreated(code)
+                onSessionCreated(code,hostName.trim())
             },
             enabled=hostName.trim().isNotEmpty(),
             modifier=Modifier.fillMaxWidth()
