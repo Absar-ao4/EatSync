@@ -17,6 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.absar.eatsync.viewmodel.CartViewModel
+import com.absar.eatsync.ui.screens.BillSplitScreen
 
 @Composable
 fun EatSyncNavGraph(){
@@ -145,20 +146,41 @@ fun EatSyncNavGraph(){
                     type=NavType.StringType
                 }
             )
-        ){ backStackEntry ->
+        ){ backStackEntry->
             val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
             SharedCartScreen(
                 sessionCode=sessionCode,
                 cartItems=cartItems,
-                onIncreaseQuantity={ itemId ->
+                onIncreaseQuantity={itemId ->
                     cartViewModel.increaseQuantity(itemId)
                 },
-                onDecreaseQuantity={ itemId->
+                onDecreaseQuantity={itemId ->
                     cartViewModel.decreaseQuantity(itemId)
                 },
-                onRemoveItem={ itemId ->
+                onRemoveItem={ itemId->
                     cartViewModel.removeItem(itemId)
                 },
+                onContinueToBillSplitClick={
+                    navController.navigate(Screen.BillSplit.createRoute(sessionCode))
+                },
+                onBackClick={
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(
+            route=Screen.BillSplit.route,
+            arguments=listOf(
+                navArgument("sessionCode"){
+                    type=NavType.StringType
+                }
+            )
+        ){ backStackEntry->
+            val sessionCode = backStackEntry.arguments?.getString("sessionCode") ?: ""
+            BillSplitScreen(
+                sessionCode=sessionCode,
+                cartItems=cartItems,
                 onBackClick={
                     navController.popBackStack()
                 }

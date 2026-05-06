@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -22,12 +23,13 @@ import com.absar.eatsync.model.CartItem
 
 @Composable
 fun SharedCartScreen(
-    sessionCode:String,
-    cartItems:List<CartItem>,
-    onIncreaseQuantity:(String)->Unit,
-    onDecreaseQuantity: (String)->Unit,
-    onRemoveItem:(String)->Unit,
-    onBackClick:()->Unit
+    sessionCode: String,
+    cartItems: List<CartItem>,
+    onIncreaseQuantity: (String) -> Unit,
+    onDecreaseQuantity: (String) -> Unit,
+    onRemoveItem: (String) -> Unit,
+    onContinueToBillSplitClick: () -> Unit,
+    onBackClick: () -> Unit
 ){
     val itemTotal=cartItems.sumOf { it.price * it.quantity }
     val deliveryFee =
@@ -104,6 +106,15 @@ fun SharedCartScreen(
             }
         }
         Spacer(modifier=Modifier.height(24.dp))
+        Button(
+            onClick=onContinueToBillSplitClick,
+            enabled=cartItems.isNotEmpty(),
+            modifier=Modifier.fillMaxWidth()
+        ) {
+            Text("Continue to Bill Split")
+        }
+
+        Spacer(modifier=Modifier.height(12.dp))
         OutlinedButton(
             onClick=onBackClick,
             modifier=Modifier.fillMaxWidth()
