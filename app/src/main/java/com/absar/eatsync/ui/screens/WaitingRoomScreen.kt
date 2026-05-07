@@ -87,7 +87,7 @@ fun WaitingRoomScreen(
                         Text(text=participant.name)
 
                         Text(
-                            text=if(participant.isHost){
+                            text=if(participant.host){
                                 "Host"
                             }else{
                                 "Joined"

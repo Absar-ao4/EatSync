@@ -46,8 +46,11 @@ fun EatSyncNavGraph(){
                 onBackClick={
                     navController.popBackStack()
                 },
-                onSessionCreated = { sessionCode, hostName ->
-                    sessionViewModel.createLocalSession(hostName)
+                onSessionCreated={sessionCode,hostName->
+                    sessionViewModel.createFirebaseSession(
+                        sessionCode=sessionCode,
+                        hostName=hostName
+                    )
                     navController.navigate(Screen.WaitingRoom.createRoute(sessionCode, true))
                 }
             )
@@ -57,8 +60,11 @@ fun EatSyncNavGraph(){
                 onBackClick={
                     navController.popBackStack()
                 },
-                onSessionJoined = { sessionCode, userName ->
-                    sessionViewModel.joinLocalSession(userName)
+                onSessionJoined={sessionCode,userName->
+                    sessionViewModel.joinFirebaseSession(
+                        sessionCode=sessionCode,
+                        userName=userName
+                    )
                     navController.navigate(Screen.WaitingRoom.createRoute(sessionCode, false))
                 }
             )
@@ -66,24 +72,24 @@ fun EatSyncNavGraph(){
         composable(
             route=Screen.WaitingRoom.route,
             arguments=listOf(
-                navArgument("sessionCode") {
+                navArgument("sessionCode"){
                     type=NavType.StringType
                 },
-                navArgument("isHost") {
+                navArgument("isHost"){
                     type=NavType.BoolType
                 }
             )
-        ){ backStackEntry ->
+        ){backStackEntry->
             val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
             val isHost=backStackEntry.arguments?.getBoolean("isHost") ?: false
             WaitingRoomScreen(
                 sessionCode = sessionCode,
                 isHost = isHost,
                 participants = participants,
-                onSelectRestaurantClick = {
+                onSelectRestaurantClick={
                     navController.navigate(Screen.RestaurantSelection.createRoute(sessionCode))
                 },
-                onBackClick = {
+                onBackClick={
                     navController.popBackStack()
                 }
             )
@@ -91,7 +97,7 @@ fun EatSyncNavGraph(){
         composable(
             route=Screen.RestaurantSelection.route,
             arguments=listOf(
-                navArgument("sessionCode") {
+                navArgument("sessionCode"){
                     type=NavType.StringType
                 }
             )
@@ -116,17 +122,17 @@ fun EatSyncNavGraph(){
         composable(
             route=Screen.Menu.route,
             arguments=listOf(
-                navArgument("sessionCode") {
+                navArgument("sessionCode"){
                     type=NavType.StringType
                 },
-                navArgument("restaurantId") {
+                navArgument("restaurantId"){
                     type=NavType.StringType
                 },
                 navArgument("restaurantName"){
                     type=NavType.StringType
                 }
             )
-        ){ backStackEntry ->
+        ){ backStackEntry->
             val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
             val restaurantId=backStackEntry.arguments?.getString("restaurantId") ?: ""
             val restaurantName=backStackEntry.arguments?.getString("restaurantName") ?: ""
@@ -134,7 +140,7 @@ fun EatSyncNavGraph(){
                 sessionCode=sessionCode,
                 restaurantId=restaurantId,
                 restaurantName=restaurantName,
-                onAddItemClick={ item ->
+                onAddItemClick={item->
                     cartViewModel.addItem(item)
                 },
                 onViewCartClick={
@@ -148,7 +154,7 @@ fun EatSyncNavGraph(){
         composable(
             route=Screen.SharedCart.route,
             arguments=listOf(
-                navArgument("sessionCode") {
+                navArgument("sessionCode"){
                     type=NavType.StringType
                 }
             )
@@ -163,7 +169,7 @@ fun EatSyncNavGraph(){
                 onDecreaseQuantity={itemId ->
                     cartViewModel.decreaseQuantity(itemId)
                 },
-                onRemoveItem={ itemId->
+                onRemoveItem={itemId->
                     cartViewModel.removeItem(itemId)
                 },
                 onContinueToBillSplitClick={
@@ -174,7 +180,6 @@ fun EatSyncNavGraph(){
                 }
             )
         }
-
         composable(
             route=Screen.BillSplit.route,
             arguments=listOf(
@@ -183,15 +188,15 @@ fun EatSyncNavGraph(){
                 }
             )
         ){ backStackEntry->
-            val sessionCode = backStackEntry.arguments?.getString("sessionCode") ?: ""
+            val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
             BillSplitScreen(
-                sessionCode = sessionCode,
-                cartItems = cartItems,
-                participants = participants,
-                onToggleReady = { userName ->
+                sessionCode=sessionCode,
+                cartItems=cartItems,
+                participants=participants,
+                onToggleReady={userName->
                     sessionViewModel.toggleReady(userName)
                 },
-                onBackClick = {
+                onBackClick={
                     navController.popBackStack()
                 }
             )

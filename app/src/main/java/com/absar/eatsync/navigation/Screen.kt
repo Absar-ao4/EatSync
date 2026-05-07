@@ -5,7 +5,7 @@ sealed class Screen(val route: String) {
     data object CreateSession:Screen("create_session")
     data object JoinSession:Screen("join_session")
 
-    data object WaitingRoom:Screen("waiting_room/{sessionCode}/{isHost}") {
+    data object WaitingRoom:Screen("waiting_room/{sessionCode}/{isHost}"){
         fun createRoute(sessionCode:String,isHost:Boolean):String{
             return "waiting_room/$sessionCode/$isHost"
         }

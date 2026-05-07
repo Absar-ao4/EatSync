@@ -1,8 +1,8 @@
 package com.absar.eatsync.model
 
 data class Participant(
-    val userId: String,
-    val name: String,
-    val isHost: Boolean=false,
-    val isReady: Boolean=false
+    val userId:String="",
+    val name:String="",
+    val host:Boolean=false,
+    val ready:Boolean=false
 )

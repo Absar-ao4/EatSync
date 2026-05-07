@@ -54,7 +54,7 @@ fun BillSplitScreen(
         )
     }
     val grandTotal=userBills.sumOf{it.finalAmount}
-    val readyCount=participants.count{it.isReady}
+    val readyCount=participants.count{it.ready}
     val allReady=participants.isNotEmpty()&&readyCount==participants.size
     Column(
         modifier=Modifier
@@ -97,7 +97,7 @@ fun BillSplitScreen(
                 val participant=participants.firstOrNull{it.name == bill.userName}
                 UserBillCard(
                     bill=bill,
-                    isReady=participant?.isReady==true,
+                    isReady=participant?.ready==true,
                     onReadyClick={
                         onToggleReady(bill.userName)
                     }

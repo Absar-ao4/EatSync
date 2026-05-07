@@ -1,86 +1,115 @@
 package com.absar.eatsync.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.absar.eatsync.firebase.FirebaseSessionManager
 import com.absar.eatsync.model.Participant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class SessionViewModel : ViewModel() {
 
-    private val _participants=MutableStateFlow<List<Participant>>(emptyList())
-    val participants:StateFlow<List<Participant>> =_participants.asStateFlow()
+    private val firebaseSessionManager = FirebaseSessionManager()
 
-    fun createLocalSession(hostName:String){
-        _participants.value=listOf(
-            Participant(
-                userId = "user_host",
-                name = hostName,
-                isHost = true,
-                isReady = false
-            ),
-            Participant(
-                userId = "user_lala",
-                name = "Lala",
-                isHost = false,
-                isReady = false
-            ),
-            Participant(
-                userId = "user_avro",
-                name = "Avro",
-                isHost = false,
-                isReady = false
-            ),
-            Participant(
-                userId = "user_ansh",
-                name = "Ansh",
-                isHost = false,
-                isReady = false
-            ),
-            Participant(
-                userId = "user_aryan",
-                name = "Aryan",
-                isHost = false,
-                isReady = false
-            )
-        )
+    private val _participants = MutableStateFlow<List<Participant>>(emptyList())
+    val participants: StateFlow<List<Participant>> = _participants.asStateFlow()
+
+    private val _currentSessionCode = MutableStateFlow<String?>(null)
+    val currentSessionCode: StateFlow<String?> = _currentSessionCode.asStateFlow()
+    private val _currentUserName = MutableStateFlow("")
+    val currentUserName: StateFlow<String> = _currentUserName.asStateFlow()
+
+    fun createFirebaseSession(
+        sessionCode: String,
+        hostName: String
+    ){
+        viewModelScope.launch{
+            try{
+                Log.d("EatSyncFirebase", "createFirebaseSession called")
+                Log.d("EatSyncFirebase", "Session Code: $sessionCode, Host: $hostName")
+                _currentSessionCode.value = sessionCode
+                _currentUserName.value = hostName
+                firebaseSessionManager.createSession(
+                    sessionCode=sessionCode,
+                    hostName=hostName
+                )
+                Log.d("EatSyncFirebase", "Session written to Firebase")
+                observeParticipants(sessionCode)
+
+            }
+            catch(e:Exception){
+                Log.e("EatSyncFirebase", "Error creating Firebase session", e)
+            }
+        }
     }
 
-    fun joinLocalSession(userName: String){
-        _participants.value=listOf(
-            Participant(
-                userId = "user_host",
-                name = "Absar",
-                isHost = true,
-                isReady = false
-            ),
-            Participant(
-                userId = "user_joined",
-                name = userName,
-                isHost = false,
-                isReady = false
-            ),
-            Participant(
-                userId = "user_lala",
-                name = "Lala",
-                isHost = false,
-                isReady = false
-            ),
-            Participant(
-                userId = "user_avro",
-                name = "Avro",
-                isHost = false,
-                isReady = false
-            )
-        )
+    fun joinFirebaseSession(
+        sessionCode: String,
+        userName: String
+    ){
+        viewModelScope.launch{
+            try{
+                Log.d("EatSyncFirebase", "joinFirebaseSession called")
+                Log.d("EatSyncFirebase", "Session Code: $sessionCode, User: $userName")
+                _currentSessionCode.value = sessionCode
+                _currentUserName.value = userName
+                firebaseSessionManager.joinSession(
+                    sessionCode=sessionCode,
+                    userName=userName
+                )
+                Log.d("EatSyncFirebase", "User joined Firebase session")
+                observeParticipants(sessionCode)
+            }catch(e: Exception){
+                Log.e("EatSyncFirebase", "Error joining Firebase session", e)
+            }
+        }
     }
 
-    fun toggleReady(userName:String){
-        _participants.value=_participants.value.map{participant->
-            if(participant.name==userName) {
-                participant.copy(isReady=!participant.isReady)
-            }else{
-                participant
+    private fun observeParticipants(sessionCode: String){
+        viewModelScope.launch{
+            try{
+                Log.d("EatSyncFirebase", "observeParticipants started for $sessionCode")
+                firebaseSessionManager.observeParticipants(sessionCode)
+                    .collect{participantList->
+                        Log.d(
+                            "EatSyncFirebase",
+                            "Participants updated: ${participantList.size}"
+                        )
+                        _participants.value = participantList
+                    }
+            }catch(e:Exception){
+                Log.e("EatSyncFirebase", "Error observing participants", e)
+            }
+        }
+    }
+
+    fun toggleReady(userName: String){
+        val sessionCode= _currentSessionCode.value
+
+        if(sessionCode==null){
+            Log.e("EatSyncFirebase", "toggleReady failed: sessionCode is null")
+            return
+        }
+        val participant= _participants.value.firstOrNull{
+            it.name==userName
+        }
+        if(participant == null){
+            Log.e("EatSyncFirebase", "toggleReady failed: participant not found")
+            return
+        }
+        viewModelScope.launch{
+            try{
+                Log.d("EatSyncFirebase", "toggleReady called for $userName")
+                firebaseSessionManager.toggleReady(
+                    sessionCode = sessionCode,
+                    participant = participant
+                )
+                Log.d("EatSyncFirebase", "Ready status updated")
+            }catch(e: Exception){
+                Log.e("EatSyncFirebase", "Error toggling ready", e)
             }
         }
     }
