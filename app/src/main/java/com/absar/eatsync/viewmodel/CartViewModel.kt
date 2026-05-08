@@ -17,117 +17,103 @@ class CartViewModel : ViewModel() {
 
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
-
-    private var currentSessionCode: String? = null
-    private var currentUserName: String = "Absar"
-
+    private var currentSessionCode: String?=null
+    private var currentUserName:String="Absar"
     fun getCurrentUserName():String{
         return currentUserName
     }
-
     fun startCartSync(
         sessionCode: String,
         userName: String
-    ) {
-        currentSessionCode = sessionCode
-        currentUserName = userName
-
-        viewModelScope.launch {
+    ){
+        currentSessionCode=sessionCode
+        currentUserName=userName
+        viewModelScope.launch{
             firebaseSessionManager.observeCartItems(sessionCode)
-                .collect { items ->
-                    _cartItems.value = items
+                .collect{items->
+                    _cartItems.value=items
                 }
         }
     }
 
-    fun addItem(menuItem: DummyMenuItem) {
-        val sessionCode = currentSessionCode
-
-        if (sessionCode == null) {
+    fun addItem(menuItem: DummyMenuItem){
+        val sessionCode=currentSessionCode
+        if(sessionCode==null){
             Log.e("EatSyncFirebase", "addItem failed: sessionCode is null")
             return
         }
-
-        val currentItems = _cartItems.value.toMutableList()
-
-        val existingItem = currentItems.firstOrNull {
-            it.id == menuItem.id && it.addedByName == currentUserName
+        val currentItems=_cartItems.value.toMutableList()
+        val existingItem = currentItems.firstOrNull{
+            it.id==menuItem.id&&it.addedByName==currentUserName
         }
-
-        val updatedCartItem = if (existingItem != null) {
+        val updatedCartItem=if(existingItem != null){
             existingItem.copy(
-                quantity = existingItem.quantity + 1
+                quantity=existingItem.quantity+1
             )
-        } else {
+        }
+        else{
             CartItem(
-                id = "${menuItem.id}_$currentUserName",
-                name = menuItem.name,
-                price = menuItem.price,
-                quantity = 1,
-                addedByName = currentUserName
+                id="${menuItem.id}_$currentUserName",
+                name=menuItem.name,
+                price=menuItem.price,
+                quantity=1,
+                addedByName=currentUserName
             )
         }
-
-        viewModelScope.launch {
+        viewModelScope.launch{
             firebaseSessionManager.addOrUpdateCartItem(
-                sessionCode = sessionCode,
-                cartItem = updatedCartItem
+                sessionCode=sessionCode,
+                cartItem=updatedCartItem
             )
         }
     }
 
-    fun increaseQuantity(itemId: String) {
-        val sessionCode = currentSessionCode ?: return
-
-        val item = _cartItems.value.firstOrNull {
-            it.id == itemId
-        } ?: return
-
-        viewModelScope.launch {
+    fun increaseQuantity(itemId: String){
+        val sessionCode=currentSessionCode?:return
+        val item=_cartItems.value.firstOrNull{
+            it.id==itemId
+        }?:return
+        viewModelScope.launch{
             firebaseSessionManager.addOrUpdateCartItem(
-                sessionCode = sessionCode,
-                cartItem = item.copy(quantity = item.quantity + 1)
+                sessionCode=sessionCode,
+                cartItem=item.copy(quantity=item.quantity+1)
             )
         }
     }
 
-    fun decreaseQuantity(itemId: String) {
-        val sessionCode = currentSessionCode ?: return
-
-        val item = _cartItems.value.firstOrNull {
-            it.id == itemId
-        } ?: return
-
-        viewModelScope.launch {
-            if (item.quantity > 1) {
+    fun decreaseQuantity(itemId: String){
+        val sessionCode=currentSessionCode?:return
+        val item=_cartItems.value.firstOrNull{
+            it.id==itemId
+        }?:return
+        viewModelScope.launch{
+            if(item.quantity>1){
                 firebaseSessionManager.addOrUpdateCartItem(
                     sessionCode = sessionCode,
                     cartItem = item.copy(quantity = item.quantity - 1)
                 )
-            } else {
+            }
+            else{
                 firebaseSessionManager.removeCartItem(
-                    sessionCode = sessionCode,
-                    itemId = itemId
+                    sessionCode=sessionCode,
+                    itemId=itemId
                 )
             }
         }
     }
 
-    fun removeItem(itemId: String) {
-        val sessionCode = currentSessionCode ?: return
-
-        viewModelScope.launch {
+    fun removeItem(itemId: String){
+        val sessionCode=currentSessionCode?:return
+        viewModelScope.launch{
             firebaseSessionManager.removeCartItem(
                 sessionCode = sessionCode,
                 itemId = itemId
             )
         }
     }
-
-    fun clearCart() {
-        val sessionCode = currentSessionCode ?: return
-
-        viewModelScope.launch {
+    fun clearCart(){
+        val sessionCode=currentSessionCode?:return
+        viewModelScope.launch{
             firebaseSessionManager.clearCart(sessionCode)
         }
     }

@@ -29,6 +29,7 @@ fun BillSplitScreen(
     sessionCode: String,
     cartItems: List<CartItem>,
     participants: List<Participant>,
+    currentUserName: String,
     onToggleReady: (String) -> Unit,
     onBackClick: () -> Unit
 ){
@@ -98,6 +99,7 @@ fun BillSplitScreen(
                 UserBillCard(
                     bill=bill,
                     isReady=participant?.ready==true,
+                    canToggleReady=bill.userName==currentUserName,
                     onReadyClick={
                         onToggleReady(bill.userName)
                     }
@@ -140,7 +142,8 @@ fun BillSplitScreen(
 fun UserBillCard(
     bill:UserBill,
     isReady:Boolean,
-    onReadyClick:()->Unit
+    canToggleReady:Boolean,
+    onReadyClick:() -> Unit
 ){
     Card(
         modifier=Modifier.fillMaxWidth()
@@ -168,13 +171,25 @@ fun UserBillCard(
             BillSplitRow(label="Item total",amount=bill.itemTotal)
             BillSplitRow(label="Shared charges",amount=bill.sharedCharges)
             Spacer(modifier=Modifier.height(12.dp))
-            Button(
-                onClick=onReadyClick,
-                modifier=Modifier.fillMaxWidth()
-            ){
+            if(canToggleReady){
+                Button(
+                    onClick = onReadyClick,
+                    modifier = Modifier.fillMaxWidth()
+                ){
+                    Text(
+                        text = if (isReady) "Ready ✓" else "Mark Ready"
+                    )
+                }
+            }else{
                 Text(
-                    text=if(isReady) "Ready ✓"
-                            else "Mark Ready"
+                    text=if(isReady){
+                        "Ready ✓"
+                    }else{
+                        "Not ready yet"
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
         }

@@ -217,7 +217,8 @@ fun EatSyncNavGraph(){
                 sessionCode=sessionCode,
                 cartItems=cartItems,
                 participants=participants,
-                onToggleReady={userName->
+                currentUserName=cartViewModel.getCurrentUserName(),
+                onToggleReady={ userName ->
                     sessionViewModel.toggleReady(userName)
                 },
                 onBackClick={
