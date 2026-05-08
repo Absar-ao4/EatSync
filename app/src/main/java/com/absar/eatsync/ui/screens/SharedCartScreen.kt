@@ -25,6 +25,7 @@ import com.absar.eatsync.model.CartItem
 fun SharedCartScreen(
     sessionCode: String,
     cartItems: List<CartItem>,
+    currentUserName: String,
     onIncreaseQuantity: (String) -> Unit,
     onDecreaseQuantity: (String) -> Unit,
     onRemoveItem: (String) -> Unit,
@@ -63,13 +64,15 @@ fun SharedCartScreen(
                     modifier=Modifier.padding(20.dp)
                 )
             }
-        }else{
+        }
+        else{
             LazyColumn(
                 modifier=Modifier.weight(1f)
             ){
                 items(cartItems){ item->
                     CartItemCard(
-                        item=item,
+                        item = item,
+                        canEdit = item.addedByName == currentUserName,
                         onIncreaseClick={
                             onIncreaseQuantity(item.id)
                         },
@@ -97,7 +100,6 @@ fun SharedCartScreen(
                     fontWeight=FontWeight.Bold
                 )
                 Spacer(modifier=Modifier.height(12.dp))
-
                 BillRow(label="Item Total",amount=itemTotal)
                 BillRow(label="Delivery Fee",amount=deliveryFee)
                 BillRow(label="Platform Fee",amount=platformFee)
@@ -110,10 +112,9 @@ fun SharedCartScreen(
             onClick=onContinueToBillSplitClick,
             enabled=cartItems.isNotEmpty(),
             modifier=Modifier.fillMaxWidth()
-        ) {
+        ){
             Text("Continue to Bill Split")
         }
-
         Spacer(modifier=Modifier.height(12.dp))
         OutlinedButton(
             onClick=onBackClick,
@@ -126,10 +127,11 @@ fun SharedCartScreen(
 
 @Composable
 fun CartItemCard(
-    item:CartItem,
-    onIncreaseClick:()->Unit,
-    onDecreaseClick:()->Unit,
-    onRemoveClick:()->Unit
+    item: CartItem,
+    canEdit: Boolean,
+    onIncreaseClick: () -> Unit,
+    onDecreaseClick: () -> Unit,
+    onRemoveClick: () -> Unit
 ){
     Card(
         modifier=Modifier.fillMaxWidth()
@@ -166,35 +168,44 @@ fun CartItemCard(
                 )
             }
             Spacer(modifier=Modifier.height(12.dp))
-            Row(
-                modifier=Modifier.fillMaxWidth(),
-                horizontalArrangement=Arrangement.SpaceBetween,
-                verticalAlignment=androidx.compose.ui.Alignment.CenterVertically
-            ){
+            if(canEdit){
                 Row(
+                    modifier=Modifier.fillMaxWidth(),
+                    horizontalArrangement=Arrangement.SpaceBetween,
                     verticalAlignment=androidx.compose.ui.Alignment.CenterVertically
                 ){
-                    OutlinedButton(
-                        onClick=onDecreaseClick
+                    Row(
+                        verticalAlignment=androidx.compose.ui.Alignment.CenterVertically
                     ){
-                        Text("-")
+                        OutlinedButton(
+                            onClick=onDecreaseClick
+                        ){
+                            Text("-")
+                        }
+                        Text(
+                            text="Qty: ${item.quantity}",
+                            modifier=Modifier.padding(horizontal = 12.dp),
+                            fontWeight=FontWeight.Bold
+                        )
+                        OutlinedButton(
+                            onClick=onIncreaseClick
+                        ){
+                            Text("+")
+                        }
                     }
-                    Text(
-                        text="Qty: ${item.quantity}",
-                        modifier=Modifier.padding(horizontal = 12.dp),
-                        fontWeight=FontWeight.Bold
-                    )
                     OutlinedButton(
-                        onClick=onIncreaseClick
+                        onClick=onRemoveClick
                     ){
-                        Text("+")
+                        Text("Remove")
                     }
                 }
-                OutlinedButton(
-                    onClick=onRemoveClick
-                ){
-                    Text("Remove")
-                }
+            }
+            else{
+                Text(
+                    text="Only ${item.addedByName} can edit this item",
+                    style=MaterialTheme.typography.bodySmall,
+                    modifier=Modifier.padding(top = 8.dp)
+                )
             }
         }
     }

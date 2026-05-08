@@ -120,24 +120,24 @@ fun EatSyncNavGraph(){
                     type=NavType.StringType
                 }
             )
-        ){ backStackEntry ->
+        ){backStackEntry->
             val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
             RestaurantSelectionScreen(
-                sessionCode = sessionCode,
-                onRestaurantSelected = { restaurant ->
+                sessionCode=sessionCode,
+                onRestaurantSelected={restaurant->
                     sessionViewModel.updateSelectedRestaurant(
-                        restaurantId = restaurant.id,
-                        restaurantName = restaurant.name
+                        restaurantId=restaurant.id,
+                        restaurantName=restaurant.name
                     )
                     navController.navigate(
                         Screen.Menu.createRoute(
-                            sessionCode = sessionCode,
-                            restaurantId = restaurant.id,
-                            restaurantName = restaurant.name
+                            sessionCode=sessionCode,
+                            restaurantId=restaurant.id,
+                            restaurantName=restaurant.name
                         )
                     )
                 },
-                onBackClick = {
+                onBackClick={
                     navController.popBackStack()
                 }
             )
@@ -155,7 +155,7 @@ fun EatSyncNavGraph(){
                     type=NavType.StringType
                 }
             )
-        ){ backStackEntry->
+        ){backStackEntry->
             val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
             val restaurantId=backStackEntry.arguments?.getString("restaurantId") ?: ""
             val restaurantName=backStackEntry.arguments?.getString("restaurantName") ?: ""
@@ -186,10 +186,11 @@ fun EatSyncNavGraph(){
             SharedCartScreen(
                 sessionCode=sessionCode,
                 cartItems=cartItems,
-                onIncreaseQuantity={itemId ->
+                currentUserName=cartViewModel.getCurrentUserName(),
+                onIncreaseQuantity={itemId->
                     cartViewModel.increaseQuantity(itemId)
                 },
-                onDecreaseQuantity={itemId ->
+                onDecreaseQuantity={itemId->
                     cartViewModel.decreaseQuantity(itemId)
                 },
                 onRemoveItem={itemId->
@@ -210,7 +211,7 @@ fun EatSyncNavGraph(){
                     type=NavType.StringType
                 }
             )
-        ){ backStackEntry->
+        ){backStackEntry->
             val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
             BillSplitScreen(
                 sessionCode=sessionCode,

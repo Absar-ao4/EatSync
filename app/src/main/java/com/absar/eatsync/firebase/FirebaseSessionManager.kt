@@ -24,10 +24,10 @@ class FirebaseSessionManager{
     ){
         Log.d("EatSyncFirebase", "FirebaseSessionManager createSession started")
         val hostParticipant=Participant(
-            userId = "host_$sessionCode",
-            name = hostName,
-            host = true,
-            ready = false
+            userId="host_$sessionCode",
+            name=hostName,
+            host=true,
+            ready=false
         )
         val sessionData=mapOf(
             "sessionCode" to sessionCode,
@@ -56,10 +56,10 @@ class FirebaseSessionManager{
         Log.d("EatSyncFirebase", "FirebaseSessionManager joinSession started")
         val userId = "user_${System.currentTimeMillis()}"
         val participant = Participant(
-            userId = userId,
-            name = userName,
-            host = false,
-            ready = false
+            userId=userId,
+            name=userName,
+            host=false,
+            ready=false
         )
         database.child("sessions")
             .child(sessionCode)
@@ -74,9 +74,9 @@ class FirebaseSessionManager{
         val participantsRef = database.child("sessions")
             .child(sessionCode)
             .child("participants")
-        val listener = object : ValueEventListener{
+        val listener=object:ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot){
-                val participants = snapshot.children.mapNotNull{child->
+                val participants=snapshot.children.mapNotNull{child->
                     child.getValue(Participant::class.java)
                 }
                 Log.d("EatSyncFirebase", "observeParticipants received ${participants.size} participants")
@@ -94,8 +94,8 @@ class FirebaseSessionManager{
     }
 
     suspend fun addOrUpdateCartItem(
-        sessionCode: String,
-        cartItem: CartItem
+        sessionCode:String,
+        cartItem:CartItem
     ){
         database.child("sessions")
             .child(sessionCode)
@@ -107,7 +107,7 @@ class FirebaseSessionManager{
     }
 
     fun observeCartItems(sessionCode: String): Flow<List<CartItem>> = callbackFlow {
-        val cartRef = database.child("sessions")
+        val cartRef=database.child("sessions")
             .child(sessionCode)
             .child("cartItems")
         val listener=object : ValueEventListener{
@@ -130,8 +130,8 @@ class FirebaseSessionManager{
     }
 
     suspend fun removeCartItem(
-        sessionCode: String,
-        itemId: String
+        sessionCode:String,
+        itemId:String
     ){
         database.child("sessions")
             .child(sessionCode)
@@ -152,63 +152,53 @@ class FirebaseSessionManager{
     }
 
     suspend fun updateSelectedRestaurant(
-        sessionCode: String,
-        restaurantId: String,
-        restaurantName: String
+        sessionCode:String,
+        restaurantId:String,
+        restaurantName:String
     ) {
-        val restaurant = SelectedRestaurant(
-            id = restaurantId,
-            name = restaurantName
+        val restaurant=SelectedRestaurant(
+            id=restaurantId,
+            name=restaurantName
         )
-
         database.child("sessions")
             .child(sessionCode)
             .child("selectedRestaurant")
             .setValue(restaurant)
             .await()
-
         database.child("sessions")
             .child(sessionCode)
             .child("status")
             .setValue("RESTAURANT_SELECTED")
             .await()
-
         Log.d("EatSyncFirebase", "Selected restaurant updated: $restaurantName")
     }
 
     fun observeSelectedRestaurant(sessionCode: String): Flow<SelectedRestaurant?> = callbackFlow {
-        val restaurantRef = database.child("sessions")
+        val restaurantRef=database.child("sessions")
             .child(sessionCode)
             .child("selectedRestaurant")
-
-        val listener = object : ValueEventListener {
+        val listener=object:ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
-                val restaurant = snapshot.getValue(SelectedRestaurant::class.java)
-
+                val restaurant=snapshot.getValue(SelectedRestaurant::class.java)
                 Log.d(
                     "EatSyncFirebase",
                     "observeSelectedRestaurant received: ${restaurant?.name}"
                 )
-
                 trySend(restaurant)
             }
-
             override fun onCancelled(error: DatabaseError) {
                 Log.e("EatSyncFirebase", "observeSelectedRestaurant cancelled", error.toException())
                 close(error.toException())
             }
         }
-
         restaurantRef.addValueEventListener(listener)
-
-        awaitClose {
+        awaitClose{
             restaurantRef.removeEventListener(listener)
         }
     }
-
     suspend fun toggleReady(
-        sessionCode: String,
-        participant: Participant
+        sessionCode:String,
+        participant:Participant
     ){
         database.child("sessions")
             .child(sessionCode)

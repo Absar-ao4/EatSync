@@ -78,43 +78,38 @@ class SessionViewModel : ViewModel() {
         restaurantName: String
     ) {
         val sessionCode = _currentSessionCode.value
-
-        if (sessionCode == null) {
+        if(sessionCode == null){
             Log.e("EatSyncFirebase", "updateSelectedRestaurant failed: sessionCode is null")
             return
         }
-
-        viewModelScope.launch {
-            try {
+        viewModelScope.launch{
+            try{
                 firebaseSessionManager.updateSelectedRestaurant(
                     sessionCode = sessionCode,
                     restaurantId = restaurantId,
                     restaurantName = restaurantName
                 )
-
                 Log.d("EatSyncFirebase", "Restaurant selection saved from ViewModel")
-
-            } catch (e: Exception) {
+            }
+            catch(e: Exception){
                 Log.e("EatSyncFirebase", "Error updating selected restaurant", e)
             }
         }
     }
-    private fun observeSelectedRestaurant(sessionCode: String) {
-        viewModelScope.launch {
-            try {
+    private fun observeSelectedRestaurant(sessionCode: String){
+        viewModelScope.launch{
+            try{
                 Log.d("EatSyncFirebase", "observeSelectedRestaurant started for $sessionCode")
-
                 firebaseSessionManager.observeSelectedRestaurant(sessionCode)
                     .collect { restaurant ->
                         _selectedRestaurant.value = restaurant
-
                         Log.d(
                             "EatSyncFirebase",
                             "Selected restaurant updated in ViewModel: ${restaurant?.name}"
                         )
                     }
-
-            } catch (e: Exception) {
+            }
+            catch (e: Exception) {
                 Log.e("EatSyncFirebase", "Error observing selected restaurant", e)
             }
         }

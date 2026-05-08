@@ -35,7 +35,7 @@ fun MenuScreen(
     onAddItemClick:(DummyMenuItem)->Unit,
     onViewCartClick:()->Unit,
     onBackClick:()->Unit
-) {
+){
     val menuItems=listOf(
         DummyMenuItem("m1", "Margherita Pizza", "Classic cheese pizza with tomato sauce", 299),
         DummyMenuItem("m2", "Farmhouse Pizza", "Loaded with capsicum, onion, tomato and cheese", 399),
@@ -47,7 +47,7 @@ fun MenuScreen(
         modifier=Modifier
             .fillMaxSize()
             .padding(24.dp)
-    ) {
+    ){
         Text(
             text=restaurantName,
             style=MaterialTheme.typography.headlineMedium,
@@ -79,14 +79,14 @@ fun MenuScreen(
         Button(
             onClick=onViewCartClick,
             modifier=Modifier.fillMaxWidth()
-        ) {
+        ){
             Text("View Shared Cart")
         }
         Spacer(modifier=Modifier.height(12.dp))
         OutlinedButton(
             onClick=onBackClick,
             modifier=Modifier.fillMaxWidth()
-        ) {
+        ){
             Text("Back")
         }
     }
@@ -96,19 +96,19 @@ fun MenuScreen(
 fun MenuItemCard(
     item:DummyMenuItem,
     onAddClick:()->Unit
-) {
+){
     Card(
         modifier=Modifier.fillMaxWidth()
-    ) {
+    ){
         Row(
             modifier=Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             verticalAlignment=Alignment.CenterVertically
-        ) {
+        ){
             Column(
                 modifier=Modifier.weight(1f)
-            ) {
+            ){
                 Text(
                     text=item.name,
                     style=MaterialTheme.typography.titleMedium,
@@ -128,7 +128,7 @@ fun MenuItemCard(
             }
             Button(
                 onClick=onAddClick
-            ) {
+            ){
                 Text("Add")
             }
         }

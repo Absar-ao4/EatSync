@@ -26,7 +26,7 @@ fun HomeScreen(
             .padding(24.dp),
         verticalArrangement=Arrangement.Center,
         horizontalAlignment=Alignment.CenterHorizontally
-    ) {
+    ){
         Text(
             text="EatSync",
             style=MaterialTheme.typography.headlineLarge,
@@ -40,7 +40,7 @@ fun HomeScreen(
         Button(
             onClick=onCreateSessionClick,
             modifier=Modifier.fillMaxWidth()
-        ) {
+        ){
             Text(text="Create Group Order")
         }
         OutlinedButton(
@@ -48,7 +48,7 @@ fun HomeScreen(
             modifier=Modifier
                 .fillMaxWidth()
                 .padding(top=12.dp)
-        ) {
+        ){
             Text(text="Join Group Order")
         }
     }

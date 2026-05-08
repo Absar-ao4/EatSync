@@ -21,6 +21,10 @@ class CartViewModel : ViewModel() {
     private var currentSessionCode: String? = null
     private var currentUserName: String = "Absar"
 
+    fun getCurrentUserName():String{
+        return currentUserName
+    }
+
     fun startCartSync(
         sessionCode: String,
         userName: String

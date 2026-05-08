@@ -88,7 +88,7 @@ fun RestaurantCard(
     ){
         Column(
             modifier=Modifier.padding(16.dp)
-        ) {
+        ){
             Text(
                 text=restaurant.name,
                 style=MaterialTheme.typography.titleMedium,
