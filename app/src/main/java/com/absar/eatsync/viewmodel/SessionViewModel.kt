@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.absar.eatsync.model.SelectedRestaurant
 
 class SessionViewModel : ViewModel() {
 
@@ -16,6 +17,8 @@ class SessionViewModel : ViewModel() {
 
     private val _participants = MutableStateFlow<List<Participant>>(emptyList())
     val participants: StateFlow<List<Participant>> = _participants.asStateFlow()
+    private val _selectedRestaurant = MutableStateFlow<SelectedRestaurant?>(null)
+    val selectedRestaurant: StateFlow<SelectedRestaurant?> = _selectedRestaurant.asStateFlow()
 
     private val _currentSessionCode = MutableStateFlow<String?>(null)
     val currentSessionCode: StateFlow<String?> = _currentSessionCode.asStateFlow()
@@ -38,6 +41,7 @@ class SessionViewModel : ViewModel() {
                 )
                 Log.d("EatSyncFirebase", "Session written to Firebase")
                 observeParticipants(sessionCode)
+                observeSelectedRestaurant(sessionCode)
 
             }
             catch(e:Exception){
@@ -62,8 +66,56 @@ class SessionViewModel : ViewModel() {
                 )
                 Log.d("EatSyncFirebase", "User joined Firebase session")
                 observeParticipants(sessionCode)
+                observeSelectedRestaurant(sessionCode)
             }catch(e: Exception){
                 Log.e("EatSyncFirebase", "Error joining Firebase session", e)
+            }
+        }
+    }
+
+    fun updateSelectedRestaurant(
+        restaurantId: String,
+        restaurantName: String
+    ) {
+        val sessionCode = _currentSessionCode.value
+
+        if (sessionCode == null) {
+            Log.e("EatSyncFirebase", "updateSelectedRestaurant failed: sessionCode is null")
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                firebaseSessionManager.updateSelectedRestaurant(
+                    sessionCode = sessionCode,
+                    restaurantId = restaurantId,
+                    restaurantName = restaurantName
+                )
+
+                Log.d("EatSyncFirebase", "Restaurant selection saved from ViewModel")
+
+            } catch (e: Exception) {
+                Log.e("EatSyncFirebase", "Error updating selected restaurant", e)
+            }
+        }
+    }
+    private fun observeSelectedRestaurant(sessionCode: String) {
+        viewModelScope.launch {
+            try {
+                Log.d("EatSyncFirebase", "observeSelectedRestaurant started for $sessionCode")
+
+                firebaseSessionManager.observeSelectedRestaurant(sessionCode)
+                    .collect { restaurant ->
+                        _selectedRestaurant.value = restaurant
+
+                        Log.d(
+                            "EatSyncFirebase",
+                            "Selected restaurant updated in ViewModel: ${restaurant?.name}"
+                        )
+                    }
+
+            } catch (e: Exception) {
+                Log.e("EatSyncFirebase", "Error observing selected restaurant", e)
             }
         }
     }

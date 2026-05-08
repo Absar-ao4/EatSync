@@ -19,13 +19,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import com.absar.eatsync.model.Participant
 import androidx.compose.ui.unit.dp
+import com.absar.eatsync.model.SelectedRestaurant
 
 @Composable
 fun WaitingRoomScreen(
     sessionCode: String,
     isHost: Boolean,
     participants: List<Participant>,
+    selectedRestaurant: SelectedRestaurant?,
     onSelectRestaurantClick: () -> Unit,
+    onOpenMenuClick: (SelectedRestaurant) -> Unit,
     onBackClick: () -> Unit
 ){
 
@@ -83,9 +86,8 @@ fun WaitingRoomScreen(
                             .fillMaxWidth()
                             .padding(vertical=6.dp),
                         horizontalArrangement=Arrangement.SpaceBetween
-                    ) {
+                    ){
                         Text(text=participant.name)
-
                         Text(
                             text=if(participant.host){
                                 "Host"
@@ -98,18 +100,50 @@ fun WaitingRoomScreen(
             }
         }
         Spacer(modifier=Modifier.height(20.dp))
-        if(isHost){
-            Button(
-                onClick=onSelectRestaurantClick,
-                modifier=Modifier.fillMaxWidth()
+        if(selectedRestaurant != null) {
+            Card(
+                modifier = Modifier.fillMaxWidth()
             ){
-                Text("Select Restaurant")
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ){
+                    Text(
+                        text = "Selected Restaurant",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = selectedRestaurant.name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(top = 6.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Button(
+                        onClick = {
+                            onOpenMenuClick(selectedRestaurant)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Open Menu")
+                    }
+                }
             }
         }else{
-            Text(
-                text="Waiting for host to select a restaurant...",
-                style=MaterialTheme.typography.bodyMedium
-            )
+            if(isHost){
+                Button(
+                    onClick = onSelectRestaurantClick,
+                    modifier = Modifier.fillMaxWidth()
+                ){
+                    Text("Select Restaurant")
+                }
+            }else{
+                Text(
+                    text = "Waiting for host to select a restaurant...",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
         Spacer(modifier=Modifier.height(16.dp))
         OutlinedButton(

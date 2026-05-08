@@ -26,6 +26,7 @@ fun EatSyncNavGraph(){
     val cartViewModel: CartViewModel=viewModel()
     val sessionViewModel: SessionViewModel = viewModel()
     val participants by sessionViewModel.participants.collectAsState()
+    val selectedRestaurant by sessionViewModel.selectedRestaurant.collectAsState()
     val cartItems by cartViewModel.cartItems.collectAsState()
     NavHost(
         navController=navController,
@@ -46,10 +47,14 @@ fun EatSyncNavGraph(){
                 onBackClick={
                     navController.popBackStack()
                 },
-                onSessionCreated={sessionCode,hostName->
+                onSessionCreated = { sessionCode, hostName ->
                     sessionViewModel.createFirebaseSession(
-                        sessionCode=sessionCode,
-                        hostName=hostName
+                        sessionCode = sessionCode,
+                        hostName = hostName
+                    )
+                    cartViewModel.startCartSync(
+                        sessionCode = sessionCode,
+                        userName = hostName
                     )
                     navController.navigate(Screen.WaitingRoom.createRoute(sessionCode, true))
                 }
@@ -60,10 +65,14 @@ fun EatSyncNavGraph(){
                 onBackClick={
                     navController.popBackStack()
                 },
-                onSessionJoined={sessionCode,userName->
+                onSessionJoined = { sessionCode, userName ->
                     sessionViewModel.joinFirebaseSession(
-                        sessionCode=sessionCode,
-                        userName=userName
+                        sessionCode = sessionCode,
+                        userName = userName
+                    )
+                    cartViewModel.startCartSync(
+                        sessionCode = sessionCode,
+                        userName = userName
                     )
                     navController.navigate(Screen.WaitingRoom.createRoute(sessionCode, false))
                 }
@@ -86,10 +95,20 @@ fun EatSyncNavGraph(){
                 sessionCode = sessionCode,
                 isHost = isHost,
                 participants = participants,
-                onSelectRestaurantClick={
+                selectedRestaurant = selectedRestaurant,
+                onSelectRestaurantClick = {
                     navController.navigate(Screen.RestaurantSelection.createRoute(sessionCode))
                 },
-                onBackClick={
+                onOpenMenuClick = { restaurant ->
+                    navController.navigate(
+                        Screen.Menu.createRoute(
+                            sessionCode = sessionCode,
+                            restaurantId = restaurant.id,
+                            restaurantName = restaurant.name
+                        )
+                    )
+                },
+                onBackClick = {
                     navController.popBackStack()
                 }
             )
@@ -104,17 +123,21 @@ fun EatSyncNavGraph(){
         ){ backStackEntry ->
             val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
             RestaurantSelectionScreen(
-                sessionCode=sessionCode,
-                onRestaurantSelected={ restaurant ->
+                sessionCode = sessionCode,
+                onRestaurantSelected = { restaurant ->
+                    sessionViewModel.updateSelectedRestaurant(
+                        restaurantId = restaurant.id,
+                        restaurantName = restaurant.name
+                    )
                     navController.navigate(
                         Screen.Menu.createRoute(
-                            sessionCode=sessionCode,
-                            restaurantId=restaurant.id,
-                            restaurantName=restaurant.name
+                            sessionCode = sessionCode,
+                            restaurantId = restaurant.id,
+                            restaurantName = restaurant.name
                         )
                     )
                 },
-                onBackClick={
+                onBackClick = {
                     navController.popBackStack()
                 }
             )
