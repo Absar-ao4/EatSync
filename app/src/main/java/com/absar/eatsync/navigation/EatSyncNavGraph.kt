@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import com.absar.eatsync.viewmodel.CartViewModel
 import com.absar.eatsync.ui.screens.BillSplitScreen
 import com.absar.eatsync.viewmodel.SessionViewModel
+import com.absar.eatsync.ui.screens.CheckoutScreen
 
 @Composable
 fun EatSyncNavGraph(){
@@ -27,7 +28,12 @@ fun EatSyncNavGraph(){
     val sessionViewModel: SessionViewModel = viewModel()
     val participants by sessionViewModel.participants.collectAsState()
     val selectedRestaurant by sessionViewModel.selectedRestaurant.collectAsState()
+    val sessionInfo by sessionViewModel.sessionInfo.collectAsState()
+    val isCartLocked = sessionInfo?.cartLocked == true
     val cartItems by cartViewModel.cartItems.collectAsState()
+
+    cartViewModel.updateCartLockedStatus(isCartLocked)
+
     NavHost(
         navController=navController,
         startDestination=Screen.Home.route
@@ -47,14 +53,14 @@ fun EatSyncNavGraph(){
                 onBackClick={
                     navController.popBackStack()
                 },
-                onSessionCreated = { sessionCode, hostName ->
+                onSessionCreated={sessionCode, hostName ->
                     sessionViewModel.createFirebaseSession(
-                        sessionCode = sessionCode,
-                        hostName = hostName
+                        sessionCode=sessionCode,
+                        hostName=hostName
                     )
                     cartViewModel.startCartSync(
-                        sessionCode = sessionCode,
-                        userName = hostName
+                        sessionCode=sessionCode,
+                        userName=hostName
                     )
                     navController.navigate(Screen.WaitingRoom.createRoute(sessionCode, true))
                 }
@@ -65,14 +71,14 @@ fun EatSyncNavGraph(){
                 onBackClick={
                     navController.popBackStack()
                 },
-                onSessionJoined = { sessionCode, userName ->
+                onSessionJoined={sessionCode, userName ->
                     sessionViewModel.joinFirebaseSession(
-                        sessionCode = sessionCode,
-                        userName = userName
+                        sessionCode=sessionCode,
+                        userName=userName
                     )
                     cartViewModel.startCartSync(
-                        sessionCode = sessionCode,
-                        userName = userName
+                        sessionCode=sessionCode,
+                        userName=userName
                     )
                     navController.navigate(Screen.WaitingRoom.createRoute(sessionCode, false))
                 }
@@ -92,23 +98,28 @@ fun EatSyncNavGraph(){
             val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
             val isHost=backStackEntry.arguments?.getBoolean("isHost") ?: false
             WaitingRoomScreen(
-                sessionCode = sessionCode,
-                isHost = isHost,
-                participants = participants,
-                selectedRestaurant = selectedRestaurant,
-                onSelectRestaurantClick = {
+                sessionCode=sessionCode,
+                isHost=isHost,
+                participants=participants,
+                selectedRestaurant=selectedRestaurant,
+                isCartLocked=isCartLocked,
+                onSelectRestaurantClick={
                     navController.navigate(Screen.RestaurantSelection.createRoute(sessionCode))
                 },
-                onOpenMenuClick = { restaurant ->
+                onOpenMenuClick={restaurant->
                     navController.navigate(
                         Screen.Menu.createRoute(
-                            sessionCode = sessionCode,
-                            restaurantId = restaurant.id,
-                            restaurantName = restaurant.name
+                            sessionCode=sessionCode,
+                            restaurantId=restaurant.id,
+                            restaurantName=restaurant.name
                         )
                     )
                 },
-                onBackClick = {
+                onChangeRestaurantClick={
+                    sessionViewModel.clearRestaurantAndCart()
+                    navController.navigate(Screen.RestaurantSelection.createRoute(sessionCode))
+                },
+                onBackClick={
                     navController.popBackStack()
                 }
             )
@@ -125,6 +136,20 @@ fun EatSyncNavGraph(){
             RestaurantSelectionScreen(
                 sessionCode=sessionCode,
                 onRestaurantSelected={restaurant->
+                    if(selectedRestaurant != null && selectedRestaurant?.id?.isNotEmpty() == true){
+                        navController.navigate(
+                            Screen.Menu.createRoute(
+                                sessionCode=sessionCode,
+                                restaurantId=selectedRestaurant?.id ?: "",
+                                restaurantName=selectedRestaurant?.name ?: ""
+                            )
+                        ){
+                            popUpTo(Screen.RestaurantSelection.route){
+                                inclusive=true
+                            }
+                        }
+                        return@RestaurantSelectionScreen
+                    }
                     sessionViewModel.updateSelectedRestaurant(
                         restaurantId=restaurant.id,
                         restaurantName=restaurant.name
@@ -135,7 +160,11 @@ fun EatSyncNavGraph(){
                             restaurantId=restaurant.id,
                             restaurantName=restaurant.name
                         )
-                    )
+                    ){
+                        popUpTo(Screen.RestaurantSelection.route){
+                            inclusive=true
+                        }
+                    }
                 },
                 onBackClick={
                     navController.popBackStack()
@@ -163,8 +192,18 @@ fun EatSyncNavGraph(){
                 sessionCode=sessionCode,
                 restaurantId=restaurantId,
                 restaurantName=restaurantName,
+                selectedRestaurantId=selectedRestaurant?.id,
+                cartItems=cartItems,
+                currentUserName=cartViewModel.getCurrentUserName(),
+                isCartLocked=isCartLocked,
                 onAddItemClick={item->
                     cartViewModel.addItem(item)
+                },
+                onIncreaseQuantity={itemId->
+                    cartViewModel.increaseQuantity(itemId)
+                },
+                onDecreaseQuantity={itemId->
+                    cartViewModel.decreaseQuantity(itemId)
                 },
                 onViewCartClick={
                     navController.navigate(Screen.SharedCart.createRoute(sessionCode))
@@ -187,6 +226,7 @@ fun EatSyncNavGraph(){
                 sessionCode=sessionCode,
                 cartItems=cartItems,
                 currentUserName=cartViewModel.getCurrentUserName(),
+                isCartLocked=isCartLocked,
                 onIncreaseQuantity={itemId->
                     cartViewModel.increaseQuantity(itemId)
                 },
@@ -199,6 +239,25 @@ fun EatSyncNavGraph(){
                 onContinueToBillSplitClick={
                     navController.navigate(Screen.BillSplit.createRoute(sessionCode))
                 },
+                onBackClick={
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(
+            route=Screen.Checkout.route,
+            arguments=listOf(
+                navArgument("sessionCode") {
+                    type=NavType.StringType
+                }
+            )
+        ){backStackEntry->
+            val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
+            CheckoutScreen(
+                sessionCode=sessionCode,
+                cartItems=cartItems,
+                participants=participants,
+                currentUserName=cartViewModel.getCurrentUserName(),
                 onBackClick={
                     navController.popBackStack()
                 }
@@ -218,14 +277,23 @@ fun EatSyncNavGraph(){
                 cartItems=cartItems,
                 participants=participants,
                 currentUserName=cartViewModel.getCurrentUserName(),
-                onToggleReady={ userName ->
+                isCartLocked=isCartLocked,
+                onToggleReady={userName->
                     sessionViewModel.toggleReady(userName)
+                },
+                onLockCartClick={
+                    sessionViewModel.lockCart()
+                },
+                onUnlockCartClick={
+                    sessionViewModel.unlockCart()
+                },
+                onCheckoutClick={
+                    navController.navigate(Screen.Checkout.createRoute(sessionCode))
                 },
                 onBackClick={
                     navController.popBackStack()
                 }
             )
         }
-
     }
 }

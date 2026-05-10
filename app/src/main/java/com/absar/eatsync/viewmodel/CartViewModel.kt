@@ -17,11 +17,19 @@ class CartViewModel : ViewModel() {
 
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
+
     private var currentSessionCode: String?=null
     private var currentUserName:String="Absar"
+    private var isCartLocked:Boolean=false
+
     fun getCurrentUserName():String{
         return currentUserName
     }
+
+    fun updateCartLockedStatus(locked:Boolean){
+        isCartLocked=locked
+    }
+
     fun startCartSync(
         sessionCode: String,
         userName: String
@@ -37,14 +45,19 @@ class CartViewModel : ViewModel() {
     }
 
     fun addItem(menuItem: DummyMenuItem){
+        if(isCartLocked){
+            Log.d("EatSyncFirebase", "addItem blocked: cart is locked")
+            return
+        }
         val sessionCode=currentSessionCode
         if(sessionCode==null){
             Log.e("EatSyncFirebase", "addItem failed: sessionCode is null")
             return
         }
         val currentItems=_cartItems.value.toMutableList()
+        val itemId="${menuItem.id}_$currentUserName"
         val existingItem = currentItems.firstOrNull{
-            it.id==menuItem.id&&it.addedByName==currentUserName
+            it.id==itemId&&it.addedByName==currentUserName
         }
         val updatedCartItem=if(existingItem != null){
             existingItem.copy(
@@ -53,7 +66,7 @@ class CartViewModel : ViewModel() {
         }
         else{
             CartItem(
-                id="${menuItem.id}_$currentUserName",
+                id=itemId,
                 name=menuItem.name,
                 price=menuItem.price,
                 quantity=1,
@@ -69,6 +82,10 @@ class CartViewModel : ViewModel() {
     }
 
     fun increaseQuantity(itemId: String){
+        if(isCartLocked){
+            Log.d("EatSyncFirebase", "increaseQuantity blocked: cart is locked")
+            return
+        }
         val sessionCode=currentSessionCode?:return
         val item=_cartItems.value.firstOrNull{
             it.id==itemId
@@ -82,6 +99,10 @@ class CartViewModel : ViewModel() {
     }
 
     fun decreaseQuantity(itemId: String){
+        if(isCartLocked){
+            Log.d("EatSyncFirebase", "decreaseQuantity blocked: cart is locked")
+            return
+        }
         val sessionCode=currentSessionCode?:return
         val item=_cartItems.value.firstOrNull{
             it.id==itemId
@@ -103,6 +124,10 @@ class CartViewModel : ViewModel() {
     }
 
     fun removeItem(itemId: String){
+        if(isCartLocked){
+            Log.d("EatSyncFirebase", "removeItem blocked: cart is locked")
+            return
+        }
         val sessionCode=currentSessionCode?:return
         viewModelScope.launch{
             firebaseSessionManager.removeCartItem(
@@ -111,7 +136,12 @@ class CartViewModel : ViewModel() {
             )
         }
     }
+
     fun clearCart(){
+        if(isCartLocked){
+            Log.d("EatSyncFirebase", "clearCart blocked: cart is locked")
+            return
+        }
         val sessionCode=currentSessionCode?:return
         viewModelScope.launch{
             firebaseSessionManager.clearCart(sessionCode)

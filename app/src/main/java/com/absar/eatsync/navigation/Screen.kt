@@ -16,6 +16,11 @@ sealed class Screen(val route: String) {
             return "restaurant_selection/$sessionCode"
         }
     }
+    data object Checkout : Screen("checkout/{sessionCode}"){
+        fun createRoute(sessionCode: String):String{
+            return "checkout/$sessionCode"
+        }
+    }
 
     data object Menu:Screen("menu/{sessionCode}/{restaurantId}/{restaurantName}"){
         fun createRoute(

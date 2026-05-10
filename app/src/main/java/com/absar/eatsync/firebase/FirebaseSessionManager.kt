@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import com.absar.eatsync.model.CartItem
 import com.absar.eatsync.model.SelectedRestaurant
+import com.absar.eatsync.model.EatSyncSession
 
 class FirebaseSessionManager{
     private val database=FirebaseDatabase
@@ -29,10 +30,11 @@ class FirebaseSessionManager{
             host=true,
             ready=false
         )
-        val sessionData=mapOf(
+        val sessionData = mapOf(
             "sessionCode" to sessionCode,
             "hostName" to hostName,
             "status" to "WAITING",
+            "cartLocked" to false,
             "createdAt" to System.currentTimeMillis()
         )
         database.child("sessions")
@@ -71,7 +73,7 @@ class FirebaseSessionManager{
     }
 
     fun observeParticipants(sessionCode: String): Flow<List<Participant>> = callbackFlow{
-        val participantsRef = database.child("sessions")
+        val participantsRef=database.child("sessions")
             .child(sessionCode)
             .child("participants")
         val listener=object:ValueEventListener{
@@ -91,6 +93,88 @@ class FirebaseSessionManager{
         awaitClose{
             participantsRef.removeEventListener(listener)
         }
+    }
+
+    fun observeSessionInfo(sessionCode: String): Flow<EatSyncSession?> = callbackFlow {
+        val sessionRef=database.child("sessions")
+            .child(sessionCode)
+        val listener=object:ValueEventListener{
+            override fun onDataChange(snapshot:DataSnapshot){
+                val session=snapshot.getValue(EatSyncSession::class.java)
+                Log.d(
+                    "EatSyncFirebase",
+                    "observeSessionInfo received: ${session?.status}, locked=${session?.cartLocked}"
+                )
+                trySend(session)
+            }
+            override fun onCancelled(error:DatabaseError){
+                Log.e("EatSyncFirebase", "observeSessionInfo cancelled", error.toException())
+                close(error.toException())
+            }
+        }
+        sessionRef.addValueEventListener(listener)
+        awaitClose {
+            sessionRef.removeEventListener(listener)
+        }
+    }
+    suspend fun lockCart(sessionCode:String){
+        val updates=mapOf<String,Any>(
+            "cartLocked" to true,
+            "status" to "CART_LOCKED"
+        )
+        database.child("sessions")
+            .child(sessionCode)
+            .updateChildren(updates)
+            .await()
+        Log.d("EatSyncFirebase", "Cart locked for session: $sessionCode")
+    }
+    suspend fun unlockCart(sessionCode: String) {
+        val updates = mapOf<String, Any>(
+            "cartLocked" to false,
+            "status" to "RESTAURANT_SELECTED"
+        )
+        database.child("sessions")
+            .child(sessionCode)
+            .updateChildren(updates)
+            .await()
+        resetAllReadyStatus(sessionCode)
+        Log.d("EatSyncFirebase","Cart unlocked for session: $sessionCode")
+    }
+    suspend fun clearRestaurantAndCart(sessionCode:String){
+        val updates=mapOf<String, Any>(
+            "cartLocked" to false,
+            "status" to "WAITING"
+        )
+        database.child("sessions")
+            .child(sessionCode)
+            .updateChildren(updates)
+            .await()
+        database.child("sessions")
+            .child(sessionCode)
+            .child("selectedRestaurant")
+            .removeValue()
+            .await()
+        database.child("sessions")
+            .child(sessionCode)
+            .child("cartItems")
+            .removeValue()
+            .await()
+        resetAllReadyStatus(sessionCode)
+        Log.d("EatSyncFirebase", "Restaurant cleared, cart cleared, ready reset")
+    }
+
+    private suspend fun resetAllReadyStatus(sessionCode: String){
+        val participantsSnapshot=database.child("sessions")
+            .child(sessionCode)
+            .child("participants")
+            .get()
+            .await()
+        participantsSnapshot.children.forEach{child->
+            child.ref.child("ready")
+                .setValue(false)
+                .await()
+        }
+        Log.d("EatSyncFirebase", "All ready statuses reset")
     }
 
     suspend fun addOrUpdateCartItem(
@@ -155,7 +239,21 @@ class FirebaseSessionManager{
         sessionCode:String,
         restaurantId:String,
         restaurantName:String
-    ) {
+    ){
+        val sessionSnapshot=database.child("sessions")
+            .child(sessionCode)
+            .get()
+            .await()
+        val session=sessionSnapshot.getValue(EatSyncSession::class.java)
+        if(session?.cartLocked == true){
+            Log.d("EatSyncFirebase", "Restaurant change blocked: cart is locked")
+            return
+        }
+        val existingRestaurant=getSelectedRestaurant(sessionCode)
+        if(existingRestaurant != null && existingRestaurant.id.isNotEmpty()){
+            Log.d("EatSyncFirebase", "Restaurant change blocked: restaurant already selected")
+            return
+        }
         val restaurant=SelectedRestaurant(
             id=restaurantId,
             name=restaurantName
@@ -173,7 +271,15 @@ class FirebaseSessionManager{
         Log.d("EatSyncFirebase", "Selected restaurant updated: $restaurantName")
     }
 
-    fun observeSelectedRestaurant(sessionCode: String): Flow<SelectedRestaurant?> = callbackFlow {
+    private suspend fun getSelectedRestaurant(sessionCode:String):SelectedRestaurant?{
+        return database.child("sessions")
+            .child(sessionCode)
+            .child("selectedRestaurant")
+            .get()
+            .await()
+            .getValue(SelectedRestaurant::class.java)
+    }
+    fun observeSelectedRestaurant(sessionCode: String): Flow<SelectedRestaurant?> = callbackFlow{
         val restaurantRef=database.child("sessions")
             .child(sessionCode)
             .child("selectedRestaurant")
