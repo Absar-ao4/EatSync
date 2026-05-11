@@ -6,11 +6,51 @@ import com.absar.eatsync.model.food.FoodRestaurant
 class FoodRepository {
     fun getRestaurants():List<FoodRestaurant>{
         return listOf(
-            FoodRestaurant("r1", "Pizza Hut", "Pizza, Fast Food", "4.2", "30-35 min"),
-            FoodRestaurant("r2", "Burger King", "Burgers, Beverages", "4.1", "25-30 min"),
-            FoodRestaurant("r3", "KFC", "Chicken, Fast Food", "4.0", "35-40 min"),
-            FoodRestaurant("r4", "La Pino'z Pizza", "Pizza, Italian", "4.3", "30-35 min"),
-            FoodRestaurant("r5", "Wow! Momo", "Momos, Tibetan", "4.4", "20-25 min")
+            FoodRestaurant(
+                id="r1",
+                name="Pizza Hut",
+                cuisine="Pizza, Fast Food",
+                rating="4.2",
+                deliveryTime="30-35 min",
+                costForTwo="₹400 for two",
+                areaName="Patia"
+            ),
+            FoodRestaurant(
+                id="r2",
+                name="Burger King",
+                cuisine="Burgers, Beverages",
+                rating="4.1",
+                deliveryTime="25-30 min",
+                costForTwo="₹350 for two",
+                areaName="KIIT Square"
+            ),
+            FoodRestaurant(
+                id="r3",
+                name="KFC",
+                cuisine="Chicken, Fast Food",
+                rating="4.0",
+                deliveryTime="35-40 min",
+                costForTwo="₹500 for two",
+                areaName="Patia"
+            ),
+            FoodRestaurant(
+                id="r4",
+                name="La Pino'z Pizza",
+                cuisine="Pizza, Italian",
+                rating="4.3",
+                deliveryTime="30-35 min",
+                costForTwo="₹450 for two",
+                areaName="Infocity"
+            ),
+            FoodRestaurant(
+                id="r5",
+                name="Wow! Momo",
+                cuisine="Momos, Tibetan",
+                rating="4.4",
+                deliveryTime="20-25 min",
+                costForTwo="₹250 for two",
+                areaName="Patia"
+            )
         )
     }
     fun getMenuItems(

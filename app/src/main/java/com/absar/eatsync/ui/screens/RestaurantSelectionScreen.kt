@@ -117,7 +117,7 @@ fun RestaurantSelectionScreen(
                         color=darkText
                     )
                     Text(
-                        text="Dummy restaurants for now. Later this will come from Swiggy MCP.",
+                        text="Restaurant data is structured like Swiggy search results. Menu data is dummy until menu tools are available.",
                         style=MaterialTheme.typography.bodySmall,
                         color=grayText,
                         modifier=Modifier.padding(top = 4.dp)
@@ -233,6 +233,12 @@ fun RestaurantCard(
                     color=grayText,
                     modifier=Modifier.padding(top = 4.dp)
                 )
+                Text(
+                    text=restaurant.areaName,
+                    style=MaterialTheme.typography.bodySmall,
+                    color=grayText,
+                    modifier=Modifier.padding(top = 3.dp)
+                )
                 Row(
                     modifier=Modifier
                         .fillMaxWidth()
@@ -241,7 +247,7 @@ fun RestaurantCard(
                     verticalAlignment=Alignment.CenterVertically
                 ){
                     Text(
-                        text=restaurant.deliveryTime,
+                        text="${restaurant.deliveryTime} • ${restaurant.costForTwo}",
                         style=MaterialTheme.typography.bodySmall,
                         color=grayText,
                         fontWeight=FontWeight.SemiBold

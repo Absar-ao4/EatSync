@@ -5,5 +5,8 @@ data class FoodRestaurant(
     val name:String="",
     val cuisine:String="",
     val rating:String="",
-    val deliveryTime:String=""
+    val deliveryTime:String="",
+    val imageUrl:String="",
+    val costForTwo:String="",
+    val areaName:String=""
 )
