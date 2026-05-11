@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.absar.eatsync.firebase.FirebaseSessionManager
 import com.absar.eatsync.model.CartItem
-import com.absar.eatsync.ui.screens.DummyMenuItem
+import com.absar.eatsync.model.food.FoodMenuItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,7 +44,7 @@ class CartViewModel : ViewModel() {
         }
     }
 
-    fun addItem(menuItem: DummyMenuItem){
+    fun addItem(menuItem: FoodMenuItem){
         if(isCartLocked){
             Log.d("EatSyncFirebase", "addItem blocked: cart is locked")
             return
@@ -136,7 +136,6 @@ class CartViewModel : ViewModel() {
             )
         }
     }
-
     fun clearCart(){
         if(isCartLocked){
             Log.d("EatSyncFirebase", "clearCart blocked: cart is locked")

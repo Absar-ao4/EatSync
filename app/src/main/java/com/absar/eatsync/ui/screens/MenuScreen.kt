@@ -21,19 +21,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.absar.eatsync.data.repository.FoodRepository
 import com.absar.eatsync.model.CartItem
-
-data class DummyMenuItem(
-    val id: String,
-    val name: String,
-    val description: String,
-    val price: Int
-)
+import com.absar.eatsync.model.food.FoodMenuItem
 
 @Composable
 fun MenuScreen(
@@ -44,13 +40,14 @@ fun MenuScreen(
     cartItems:List<CartItem>,
     currentUserName:String,
     isCartLocked:Boolean,
-    onAddItemClick:(DummyMenuItem)->Unit,
+    onAddItemClick:(FoodMenuItem)->Unit,
     onIncreaseQuantity:(String)->Unit,
     onDecreaseQuantity:(String)->Unit,
     onViewCartClick:()->Unit,
     onBackClick:()->Unit
 ){
-    val menuItems=getDummyMenuForRestaurant(restaurantId)
+    val foodRepository=remember { FoodRepository() }
+    val menuItems=foodRepository.getMenuItems(restaurantId)
     val orange=Color(0xFFFC8019)
     val background=Color(0xFFFFF8F1)
     val darkText=Color(0xFF1C1C1C)
@@ -191,56 +188,9 @@ fun MenuScreen(
     }
 }
 
-private fun getDummyMenuForRestaurant(
-    restaurantId:String
-):List<DummyMenuItem>{
-    return when(restaurantId){
-        "r1" -> listOf(
-            DummyMenuItem("r1_m1", "Margherita Pizza", "Classic cheese pizza with tomato sauce", 299),
-            DummyMenuItem("r1_m2", "Farmhouse Pizza", "Capsicum, onion, tomato, corn and cheese", 399),
-            DummyMenuItem("r1_m3", "Garlic Bread", "Toasted garlic bread with cheese dip", 159),
-            DummyMenuItem("r1_m4", "Cheese Burst Pizza", "Extra cheesy pizza with soft crust", 449),
-            DummyMenuItem("r1_m5", "Pepsi", "Chilled soft drink", 69)
-        )
-        "r2" -> listOf(
-            DummyMenuItem("r2_m1", "Veg Whopper", "Loaded veg patty with lettuce and sauces", 189),
-            DummyMenuItem("r2_m2", "Crispy Veg Burger", "Crispy veg patty with mayo", 99),
-            DummyMenuItem("r2_m3", "King Fries", "Crispy salted fries", 129),
-            DummyMenuItem("r2_m4", "Cheesy Fries", "Fries loaded with cheese sauce", 169),
-            DummyMenuItem("r2_m5", "Coke", "Chilled beverage", 79)
-        )
-        "r3" -> listOf(
-            DummyMenuItem("r3_m1", "Zinger Burger", "Crispy chicken burger with spicy mayo", 219),
-            DummyMenuItem("r3_m2", "Chicken Popcorn", "Bite-sized crispy chicken pieces", 179),
-            DummyMenuItem("r3_m3", "Hot Wings", "Spicy fried chicken wings", 249),
-            DummyMenuItem("r3_m4", "Chicken Bucket", "Assorted crispy chicken pieces", 599),
-            DummyMenuItem("r3_m5", "Pepsi", "Chilled soft drink", 69)
-        )
-        "r4" -> listOf(
-            DummyMenuItem("r4_m1", "Cheesy 7 Pizza", "Seven cheese loaded pizza", 459),
-            DummyMenuItem("r4_m2", "Tandoori Paneer Pizza", "Paneer tikka, onion and capsicum", 429),
-            DummyMenuItem("r4_m3", "Garlic Sticks", "Crispy garlic sticks with herbs", 149),
-            DummyMenuItem("r4_m4", "Pesto Veg Pizza", "Italian herbs, veggies and pesto sauce", 389),
-            DummyMenuItem("r4_m5", "Chocolate Brownie", "Warm brownie dessert", 139)
-        )
-        "r5" -> listOf(
-            DummyMenuItem("r5_m1", "Veg Steamed Momos", "Classic steamed momos with spicy chutney", 129),
-            DummyMenuItem("r5_m2", "Veg Fried Momos", "Crispy fried momos with chutney", 149),
-            DummyMenuItem("r5_m3", "Paneer Momos", "Soft momos filled with paneer stuffing", 169),
-            DummyMenuItem("r5_m4", "Momo Burger", "Burger with momo-style patty", 119),
-            DummyMenuItem("r5_m5", "Thukpa", "Hot Tibetan noodle soup", 179)
-        )
-        else -> listOf(
-            DummyMenuItem("default_m1", "Veg Meal", "Simple meal combo", 199),
-            DummyMenuItem("default_m2", "French Fries", "Crispy salted fries", 129),
-            DummyMenuItem("default_m3", "Cold Coffee", "Chilled coffee with ice cream", 179)
-        )
-    }
-}
-
 @Composable
 fun MenuItemCard(
-    item:DummyMenuItem,
+    item:FoodMenuItem,
     cartItem:CartItem?,
     isMenuDisabled:Boolean,
     isCartLocked:Boolean,

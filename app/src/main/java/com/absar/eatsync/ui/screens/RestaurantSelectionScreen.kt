@@ -21,34 +21,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-
-data class DummyRestaurant(
-    val id:String,
-    val name:String,
-    val cuisine:String,
-    val rating:String,
-    val deliveryTime:String
-)
+import com.absar.eatsync.data.repository.FoodRepository
+import com.absar.eatsync.model.food.FoodRestaurant
 
 @Composable
 fun RestaurantSelectionScreen(
     sessionCode:String,
-    onRestaurantSelected:(DummyRestaurant)->Unit,
+    onRestaurantSelected:(FoodRestaurant)->Unit,
     onBackClick:()->Unit
 ){
-    val restaurants=listOf(
-        DummyRestaurant("r1", "Pizza Hut", "Pizza, Fast Food", "4.2", "30-35 min"),
-        DummyRestaurant("r2", "Burger King", "Burgers, Beverages", "4.1", "25-30 min"),
-        DummyRestaurant("r3", "KFC", "Chicken, Fast Food", "4.0", "35-40 min"),
-        DummyRestaurant("r4", "La Pino'z Pizza", "Pizza, Italian", "4.3", "30-35 min"),
-        DummyRestaurant("r5", "Wow! Momo", "Momos, Tibetan", "4.4", "20-25 min")
-    )
+    val foodRepository=remember { FoodRepository() }
+    val restaurants=foodRepository.getRestaurants()
+
     val orange=Color(0xFFFC8019)
     val background=Color(0xFFFFF7ED)
     val darkText=Color(0xFF1C1C1C)
@@ -167,7 +158,7 @@ fun RestaurantSelectionScreen(
 
 @Composable
 fun RestaurantCard(
-    restaurant:DummyRestaurant,
+    restaurant:FoodRestaurant,
     onClick:()->Unit
 ){
     val orange=Color(0xFFFC8019)

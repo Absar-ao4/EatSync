@@ -37,7 +37,6 @@ fun HomeScreen(
     val darkText=Color(0xFF1C1C1C)
     val grayText=Color(0xFF686B78)
     val green=Color(0xFF48C479)
-
     Box(
         modifier=Modifier
             .fillMaxSize()
@@ -50,7 +49,6 @@ fun HomeScreen(
                 .background(Color(0xFFFFE4C7), CircleShape)
                 .padding(68.dp)
         )
-
         Column(
             modifier=Modifier.fillMaxSize()
         ){
@@ -75,7 +73,6 @@ fun HomeScreen(
                             fontWeight=FontWeight.ExtraBold
                         )
                     }
-
                     Column(
                         modifier=Modifier.padding(start = 10.dp)
                     ){
@@ -85,7 +82,6 @@ fun HomeScreen(
                             fontWeight=FontWeight.ExtraBold,
                             color=darkText
                         )
-
                         Text(
                             text="Group food ordering",
                             style=MaterialTheme.typography.bodySmall,
@@ -93,7 +89,6 @@ fun HomeScreen(
                         )
                     }
                 }
-
                 Box(
                     modifier=Modifier
                         .background(Color.White, RoundedCornerShape(18.dp))
@@ -107,9 +102,7 @@ fun HomeScreen(
                     )
                 }
             }
-
             Spacer(modifier=Modifier.height(24.dp))
-
             Row(
                 modifier=Modifier.fillMaxWidth(),
                 horizontalArrangement=Arrangement.spacedBy(10.dp)
@@ -119,16 +112,13 @@ fun HomeScreen(
                     subtitle="Everyone adds together",
                     modifier=Modifier.weight(1f)
                 )
-
                 HomeFeatureCard(
                     title="Bill Split",
                     subtitle="Auto split per user",
                     modifier=Modifier.weight(1f)
                 )
             }
-
             Spacer(modifier=Modifier.height(10.dp))
-
             Row(
                 modifier=Modifier.fillMaxWidth(),
                 horizontalArrangement=Arrangement.spacedBy(10.dp)
@@ -138,16 +128,13 @@ fun HomeScreen(
                     subtitle="Lock when all agree",
                     modifier=Modifier.weight(1f)
                 )
-
                 HomeFeatureCard(
                     title="Host Checkout",
                     subtitle="One final order",
                     modifier=Modifier.weight(1f)
                 )
             }
-
             Spacer(modifier=Modifier.height(16.dp))
-
             Card(
                 modifier=Modifier.fillMaxWidth(),
                 shape=RoundedCornerShape(24.dp),
@@ -173,7 +160,6 @@ fun HomeScreen(
                                 fontWeight=FontWeight.Bold,
                                 color=darkText
                             )
-
                             Text(
                                 text="How your order looks live",
                                 style=MaterialTheme.typography.bodySmall,
@@ -181,24 +167,19 @@ fun HomeScreen(
                                 modifier=Modifier.padding(top = 3.dp)
                             )
                         }
-
                         Text(
                             text="₹478",
                             color=darkText,
                             fontWeight=FontWeight.ExtraBold
                         )
                     }
-
                     Spacer(modifier=Modifier.height(14.dp))
-
                     HomeCartPreviewRow(
                         name="Margherita Pizza",
                         addedBy="Absar",
                         price="₹299"
                     )
-
                     Spacer(modifier=Modifier.height(10.dp))
-
                     HomeCartPreviewRow(
                         name="Cold Coffee",
                         addedBy="Tenz",
@@ -206,9 +187,7 @@ fun HomeScreen(
                     )
                 }
             }
-
             Spacer(modifier=Modifier.height(16.dp))
-
             Card(
                 modifier=Modifier
                     .fillMaxWidth()
@@ -230,16 +209,13 @@ fun HomeScreen(
                         fontWeight=FontWeight.ExtraBold,
                         color=darkText
                     )
-
                     Text(
                         text="Create one shared food cart with friends, split the bill, and stop calculating who owes what.",
                         style=MaterialTheme.typography.bodyMedium,
                         color=grayText,
                         modifier=Modifier.padding(top = 8.dp)
                     )
-
                     Spacer(modifier=Modifier.height(18.dp))
-
                     Button(
                         onClick=onCreateSessionClick,
                         modifier=Modifier
@@ -255,9 +231,7 @@ fun HomeScreen(
                             fontWeight=FontWeight.Bold
                         )
                     }
-
                     Spacer(modifier=Modifier.height(10.dp))
-
                     OutlinedButton(
                         onClick=onJoinSessionClick,
                         modifier=Modifier
@@ -285,7 +259,6 @@ fun HomeFeatureCard(
 ){
     val darkText=Color(0xFF1C1C1C)
     val grayText=Color(0xFF686B78)
-
     Card(
         modifier=modifier,
         shape=RoundedCornerShape(20.dp),
@@ -302,7 +275,6 @@ fun HomeFeatureCard(
                 fontWeight=FontWeight.Bold,
                 style=MaterialTheme.typography.bodyMedium
             )
-
             Text(
                 text=subtitle,
                 color=grayText,
@@ -322,7 +294,6 @@ fun HomeCartPreviewRow(
     val darkText=Color(0xFF1C1C1C)
     val grayText=Color(0xFF686B78)
     val orange=Color(0xFFFC8019)
-
     Row(
         modifier=Modifier.fillMaxWidth(),
         horizontalArrangement=Arrangement.SpaceBetween,
@@ -353,7 +324,6 @@ fun HomeCartPreviewRow(
                     fontWeight=FontWeight.Bold,
                     style=MaterialTheme.typography.bodyMedium
                 )
-
                 Text(
                     text="Added by $addedBy",
                     color=grayText,
@@ -362,7 +332,6 @@ fun HomeCartPreviewRow(
                 )
             }
         }
-
         Text(
             text=price,
             color=darkText,
