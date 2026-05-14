@@ -21,7 +21,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -38,7 +42,13 @@ fun RestaurantSelectionScreen(
     onBackClick:()->Unit
 ){
     val foodRepository=remember { FoodRepository() }
-    val restaurants=foodRepository.getRestaurants()
+    var restaurants by remember { mutableStateOf<List<FoodRestaurant>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit){
+        restaurants=foodRepository.getRestaurants()
+        isLoading=false
+    }
 
     val orange=Color(0xFFFC8019)
     val background=Color(0xFFFFF7ED)
@@ -117,7 +127,11 @@ fun RestaurantSelectionScreen(
                         color=darkText
                     )
                     Text(
-                        text="Restaurant data is structured like Swiggy search results. Menu data is dummy until menu tools are available.",
+                        text=if(isLoading){
+                            "Loading restaurants from EatSync backend..."
+                        }else{
+                            "Restaurant data is coming from backend. Later backend will use Swiggy search_restaurants."
+                        },
                         style=MaterialTheme.typography.bodySmall,
                         color=grayText,
                         modifier=Modifier.padding(top = 4.dp)

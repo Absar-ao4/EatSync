@@ -21,7 +21,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,7 +51,14 @@ fun MenuScreen(
     onBackClick:()->Unit
 ){
     val foodRepository=remember { FoodRepository() }
-    val menuItems=foodRepository.getMenuItems(restaurantId)
+    var menuItems by remember { mutableStateOf<List<FoodMenuItem>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(restaurantId){
+        menuItems=foodRepository.getMenuItems(restaurantId)
+        isLoading=false
+    }
+
     val orange=Color(0xFFFC8019)
     val background=Color(0xFFFFF8F1)
     val darkText=Color(0xFF1C1C1C)
@@ -74,7 +85,11 @@ fun MenuScreen(
             modifier=Modifier.padding(top = 4.dp)
         )
         Text(
-            text="Choose dishes from $restaurantName for your shared group order",
+            text=if(isLoading){
+                "Loading menu from EatSync backend..."
+            }else{
+                "Choose dishes from $restaurantName for your shared group order"
+            },
             style=MaterialTheme.typography.bodyMedium,
             color=grayText,
             modifier=Modifier.padding(top = 6.dp, bottom = 16.dp)

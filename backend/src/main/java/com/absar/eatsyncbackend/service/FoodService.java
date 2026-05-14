@@ -36,7 +36,7 @@ public class FoodService {
                 ),
                 new FoodRestaurantDto(
                         "r2",
-                        "Burger King",
+                        "Burger King backend",
                         "Burgers, Beverages",
                         "4.1",
                         "25-30 min",

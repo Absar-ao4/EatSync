@@ -21,7 +21,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -38,7 +42,13 @@ fun AddressSelectionScreen(
     onBackClick:()->Unit
 ){
     val foodRepository=remember { FoodRepository() }
-    val addresses=foodRepository.getAddresses()
+    var addresses by remember { mutableStateOf<List<FoodAddress>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit){
+        addresses=foodRepository.getAddresses()
+        isLoading=false
+    }
 
     val orange=Color(0xFFFC8019)
     val background=Color(0xFFFFF7ED)
@@ -116,7 +126,11 @@ fun AddressSelectionScreen(
                         color=darkText
                     )
                     Text(
-                        text="For now this uses dummy address data. Later this will come from Swiggy get_addresses.",
+                        text=if(isLoading){
+                            "Loading addresses from EatSync backend..."
+                        }else{
+                            "Address data is coming from backend. Later backend will use Swiggy get_addresses."
+                        },
                         style=MaterialTheme.typography.bodySmall,
                         color=grayText,
                         modifier=Modifier.padding(top = 4.dp)
