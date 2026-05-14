@@ -10,6 +10,7 @@ import com.absar.eatsync.ui.screens.JoinSessionScreen
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.absar.eatsync.ui.screens.WaitingRoomScreen
+import com.absar.eatsync.ui.screens.AddressSelectionScreen
 import com.absar.eatsync.ui.screens.RestaurantSelectionScreen
 import com.absar.eatsync.ui.screens.MenuScreen
 import com.absar.eatsync.ui.screens.SharedCartScreen
@@ -104,7 +105,7 @@ fun EatSyncNavGraph(){
                 selectedRestaurant=selectedRestaurant,
                 isCartLocked=isCartLocked,
                 onSelectRestaurantClick={
-                    navController.navigate(Screen.RestaurantSelection.createRoute(sessionCode))
+                    navController.navigate(Screen.AddressSelection.createRoute(sessionCode))
                 },
                 onOpenMenuClick={restaurant->
                     navController.navigate(
@@ -117,6 +118,25 @@ fun EatSyncNavGraph(){
                 },
                 onChangeRestaurantClick={
                     sessionViewModel.clearRestaurantAndCart()
+                    navController.navigate(Screen.AddressSelection.createRoute(sessionCode))
+                },
+                onBackClick={
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(
+            route=Screen.AddressSelection.route,
+            arguments=listOf(
+                navArgument("sessionCode"){
+                    type=NavType.StringType
+                }
+            )
+        ){backStackEntry->
+            val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
+            AddressSelectionScreen(
+                sessionCode=sessionCode,
+                onAddressSelected={address->
                     navController.navigate(Screen.RestaurantSelection.createRoute(sessionCode))
                 },
                 onBackClick={

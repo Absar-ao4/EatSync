@@ -1,5 +1,6 @@
 package com.absar.eatsync.data.repository
 
+import com.absar.eatsync.model.food.FoodAddress
 import com.absar.eatsync.model.food.FoodMenuItem
 import com.absar.eatsync.model.food.FoodRestaurant
 
@@ -53,6 +54,19 @@ class FoodRepository {
             )
         )
     }
+
+    fun getAddresses():List<FoodAddress>{
+        return listOf(
+            FoodAddress(
+                id="dummy_college_address",
+                addressLine="College address",
+                phoneNumber="******0000",
+                addressCategory="College",
+                addressTag="College"
+            )
+        )
+    }
+
     fun getMenuItems(
         restaurantId:String
     ):List<FoodMenuItem>{

@@ -11,11 +11,18 @@ sealed class Screen(val route: String) {
         }
     }
 
+    data object AddressSelection:Screen("address_selection/{sessionCode}"){
+        fun createRoute(sessionCode:String):String{
+            return "address_selection/$sessionCode"
+        }
+    }
+
     data object RestaurantSelection:Screen("restaurant_selection/{sessionCode}"){
         fun createRoute(sessionCode:String):String{
             return "restaurant_selection/$sessionCode"
         }
     }
+
     data object Checkout : Screen("checkout/{sessionCode}"){
         fun createRoute(sessionCode: String):String{
             return "checkout/$sessionCode"
