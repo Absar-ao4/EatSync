@@ -7,6 +7,7 @@ import com.absar.eatsyncbackend.service.FoodService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import com.absar.eatsyncbackend.dto.McpToolStatusDto;
 
 import java.util.List;
 
@@ -22,6 +23,11 @@ public class FoodController {
     @GetMapping("/api/food/addresses")
     public List<FoodAddressDto> getAddresses() {
         return foodService.getAddresses();
+    }
+
+    @GetMapping("/api/food/mcp-status")
+    public List<McpToolStatusDto> getMcpStatus() {
+        return foodService.getMcpStatus();
     }
 
     @GetMapping("/api/food/restaurants")

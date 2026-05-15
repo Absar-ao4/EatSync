@@ -6,5 +6,9 @@ data class FoodMenuItem(
     val name:String="",
     val description:String="",
     val price:Int=0,
-    val isVeg:Boolean=true
+    val veg:Boolean=true,
+    val imageUrl:String="",
+    val inStock:Boolean=true,
+    val hasVariants:Boolean=false,
+    val hasAddons:Boolean=false
 )
