@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -28,9 +29,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.absar.eatsync.data.repository.FoodRepository
 import com.absar.eatsync.model.CartItem
 import com.absar.eatsync.model.food.FoodMenuItem
@@ -147,27 +150,28 @@ fun MenuScreen(
                 val cartItem=cartItems.firstOrNull{
                     it.id==itemId&&it.addedByName==currentUserName
                 }
+                val isItemDisabled=isMenuDisabled || !item.inStock
                 MenuItemCard(
                     item=item,
                     cartItem=cartItem,
-                    isMenuDisabled=isMenuDisabled,
+                    isItemDisabled=isItemDisabled,
                     isCartLocked=isCartLocked,
                     isCurrentRestaurantActive=isCurrentRestaurantActive,
                     orange=orange,
                     darkText=darkText,
                     grayText=grayText,
                     onAddClick={
-                        if(!isMenuDisabled){
+                        if(!isItemDisabled){
                             onAddItemClick(item)
                         }
                     },
                     onIncreaseClick={
-                        if(cartItem != null && !isMenuDisabled){
+                        if(cartItem != null && !isItemDisabled){
                             onIncreaseQuantity(cartItem.id)
                         }
                     },
                     onDecreaseClick={
-                        if(cartItem != null && !isMenuDisabled){
+                        if(cartItem != null && !isItemDisabled){
                             onDecreaseQuantity(cartItem.id)
                         }
                     }
@@ -207,7 +211,7 @@ fun MenuScreen(
 fun MenuItemCard(
     item:FoodMenuItem,
     cartItem:CartItem?,
-    isMenuDisabled:Boolean,
+    isItemDisabled:Boolean,
     isCartLocked:Boolean,
     isCurrentRestaurantActive:Boolean,
     orange:Color,
@@ -217,6 +221,9 @@ fun MenuItemCard(
     onIncreaseClick:()->Unit,
     onDecreaseClick:()->Unit
 ){
+    val green=Color(0xFF48C479)
+    val red=Color(0xFFE53935)
+
     Card(
         modifier=Modifier.fillMaxWidth(),
         colors=CardDefaults.cardColors(
@@ -230,9 +237,20 @@ fun MenuItemCard(
         Row(
             modifier=Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(14.dp),
             verticalAlignment=Alignment.CenterVertically
         ){
+            if(item.imageUrl.isNotBlank()){
+                AsyncImage(
+                    model=item.imageUrl,
+                    contentDescription=item.name,
+                    modifier=Modifier
+                        .size(82.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                )
+                Spacer(modifier=Modifier.width(12.dp))
+            }
+
             Column(
                 modifier=Modifier.weight(1f)
             ){
@@ -255,11 +273,62 @@ fun MenuItemCard(
                     color=darkText,
                     modifier=Modifier.padding(top = 8.dp)
                 )
+
+                Column(
+                    modifier=Modifier.padding(top = 8.dp)
+                ){
+                    Text(
+                        text=if(item.veg){
+                            "VEG"
+                        }else{
+                            "NON-VEG"
+                        },
+                        style=MaterialTheme.typography.bodySmall,
+                        fontWeight=FontWeight.Bold,
+                        color=if(item.veg){
+                            green
+                        }else{
+                            red
+                        }
+                    )
+
+                    if(item.hasVariants || item.hasAddons){
+                        Text(
+                            text=buildString {
+                                if(item.hasVariants){
+                                    append("Customizable")
+                                }
+                                if(item.hasVariants && item.hasAddons){
+                                    append(" • ")
+                                }
+                                if(item.hasAddons){
+                                    append("Add-ons available")
+                                }
+                            },
+                            style=MaterialTheme.typography.bodySmall,
+                            fontWeight=FontWeight.Bold,
+                            color=orange,
+                            modifier=Modifier.padding(top = 3.dp)
+                        )
+                    }
+
+                    if(!item.inStock){
+                        Text(
+                            text="OUT OF STOCK",
+                            style=MaterialTheme.typography.bodySmall,
+                            fontWeight=FontWeight.Bold,
+                            color=red,
+                            modifier=Modifier.padding(top = 3.dp)
+                        )
+                    }
+                }
             }
-            Spacer(modifier=Modifier.width(12.dp))
-            if(isMenuDisabled){
+            Spacer(modifier=Modifier.width(10.dp))
+            if(isItemDisabled){
                 Text(
-                    text=if(isCartLocked){
+                    text=if(!item.inStock){
+                        "OUT"
+                    }else if(isCartLocked){
                         "LOCKED"
                     }else if(!isCurrentRestaurantActive){
                         "OLD MENU"
