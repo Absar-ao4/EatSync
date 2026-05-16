@@ -1,5 +1,7 @@
 package com.absar.eatsync.navigation
 
+import android.net.Uri
+
 sealed class Screen(val route: String) {
     data object Home:Screen("home")
     data object CreateSession:Screen("create_session")
@@ -35,7 +37,18 @@ sealed class Screen(val route: String) {
             restaurantId:String,
             restaurantName:String
         ):String{
-            return "menu/$sessionCode/$restaurantId/$restaurantName"
+            return "menu/$sessionCode/$restaurantId/${Uri.encode(restaurantName)}"
+        }
+    }
+
+    data object Customization:Screen("customization/{sessionCode}/{restaurantId}/{itemId}/{itemName}"){
+        fun createRoute(
+            sessionCode:String,
+            restaurantId:String,
+            itemId:String,
+            itemName:String
+        ):String{
+            return "customization/$sessionCode/$restaurantId/$itemId/${Uri.encode(itemName)}"
         }
     }
 

@@ -13,6 +13,7 @@ import com.absar.eatsync.ui.screens.AddressSelectionScreen
 import com.absar.eatsync.ui.screens.BillSplitScreen
 import com.absar.eatsync.ui.screens.CheckoutScreen
 import com.absar.eatsync.ui.screens.CreateSessionScreen
+import com.absar.eatsync.ui.screens.CustomizationScreen
 import com.absar.eatsync.ui.screens.HomeScreen
 import com.absar.eatsync.ui.screens.JoinSessionScreen
 import com.absar.eatsync.ui.screens.MenuScreen
@@ -242,6 +243,16 @@ fun EatSyncNavGraph(){
                 onAddItemClick={item->
                     cartViewModel.addItem(item)
                 },
+                onCustomizeItemClick={item->
+                    navController.navigate(
+                        Screen.Customization.createRoute(
+                            sessionCode=sessionCode,
+                            restaurantId=restaurantId,
+                            itemId=item.id,
+                            itemName=item.name
+                        )
+                    )
+                },
                 onIncreaseQuantity={itemId->
                     cartViewModel.increaseQuantity(itemId)
                 },
@@ -254,6 +265,42 @@ fun EatSyncNavGraph(){
                     )
                 },
                 onBackClick={
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(
+            route=Screen.Customization.route,
+            arguments=listOf(
+                navArgument("sessionCode"){
+                    type=NavType.StringType
+                },
+                navArgument("restaurantId"){
+                    type=NavType.StringType
+                },
+                navArgument("itemId"){
+                    type=NavType.StringType
+                },
+                navArgument("itemName"){
+                    type=NavType.StringType
+                }
+            )
+        ){backStackEntry->
+            val sessionCode=backStackEntry.arguments?.getString("sessionCode") ?: ""
+            val restaurantId=backStackEntry.arguments?.getString("restaurantId") ?: ""
+            val itemId=backStackEntry.arguments?.getString("itemId") ?: ""
+            val itemName=backStackEntry.arguments?.getString("itemName") ?: ""
+
+            CustomizationScreen(
+                sessionCode=sessionCode,
+                restaurantId=restaurantId,
+                itemId=itemId,
+                itemName=itemName,
+                onBackClick={
+                    navController.popBackStack()
+                },
+                onAddCustomizedItemClick={
                     navController.popBackStack()
                 }
             )

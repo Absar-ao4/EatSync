@@ -48,6 +48,7 @@ fun MenuScreen(
     currentUserName:String,
     isCartLocked:Boolean,
     onAddItemClick:(FoodMenuItem)->Unit,
+    onCustomizeItemClick:(FoodMenuItem)->Unit,
     onIncreaseQuantity:(String)->Unit,
     onDecreaseQuantity:(String)->Unit,
     onViewCartClick:()->Unit,
@@ -56,19 +57,18 @@ fun MenuScreen(
     val foodRepository=remember { FoodRepository() }
     var menuItems by remember { mutableStateOf<List<FoodMenuItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
-
+    var customMessage by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(restaurantId){
         menuItems=foodRepository.getMenuItems(restaurantId)
         isLoading=false
+        customMessage=null
     }
-
     val orange=Color(0xFFFC8019)
     val background=Color(0xFFFFF8F1)
     val darkText=Color(0xFF1C1C1C)
     val grayText=Color(0xFF686B78)
     val isCurrentRestaurantActive=selectedRestaurantId==restaurantId
     val isMenuDisabled=isCartLocked || !isCurrentRestaurantActive
-
     Column(
         modifier=Modifier
             .fillMaxSize()
@@ -97,6 +97,36 @@ fun MenuScreen(
             color=grayText,
             modifier=Modifier.padding(top = 6.dp, bottom = 16.dp)
         )
+        customMessage?.let { message ->
+            Card(
+                modifier=Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 14.dp),
+                colors=CardDefaults.cardColors(
+                    containerColor=Color.White
+                ),
+                elevation=CardDefaults.cardElevation(
+                    defaultElevation=2.dp
+                ),
+                shape=RoundedCornerShape(16.dp)
+            ){
+                Column(
+                    modifier=Modifier.padding(14.dp)
+                ){
+                    Text(
+                        text="Customization needed",
+                        fontWeight=FontWeight.Bold,
+                        color=orange
+                    )
+                    Text(
+                        text=message,
+                        color=grayText,
+                        style=MaterialTheme.typography.bodyMedium,
+                        modifier=Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
+        }
         if(!isCurrentRestaurantActive){
             Card(
                 modifier=Modifier
@@ -150,7 +180,10 @@ fun MenuScreen(
                 val cartItem=cartItems.firstOrNull{
                     it.id==itemId&&it.addedByName==currentUserName
                 }
+
                 val isItemDisabled=isMenuDisabled || !item.inStock
+                val needsCustomization=item.hasVariants || item.hasAddons
+
                 MenuItemCard(
                     item=item,
                     cartItem=cartItem,
@@ -162,7 +195,13 @@ fun MenuScreen(
                     grayText=grayText,
                     onAddClick={
                         if(!isItemDisabled){
-                            onAddItemClick(item)
+                            if(needsCustomization){
+                                onCustomizeItemClick(item)
+                            }
+                            else{
+                                customMessage=null
+                                onAddItemClick(item)
+                            }
                         }
                     },
                     onIncreaseClick={
@@ -176,6 +215,7 @@ fun MenuScreen(
                         }
                     }
                 )
+
                 Spacer(modifier=Modifier.height(12.dp))
             }
         }
@@ -223,7 +263,6 @@ fun MenuItemCard(
 ){
     val green=Color(0xFF48C479)
     val red=Color(0xFFE53935)
-
     Card(
         modifier=Modifier.fillMaxWidth(),
         colors=CardDefaults.cardColors(
@@ -291,7 +330,6 @@ fun MenuItemCard(
                             red
                         }
                     )
-
                     if(item.hasVariants || item.hasAddons){
                         Text(
                             text=buildString {
@@ -311,7 +349,6 @@ fun MenuItemCard(
                             modifier=Modifier.padding(top = 3.dp)
                         )
                     }
-
                     if(!item.inStock){
                         Text(
                             text="OUT OF STOCK",
@@ -345,7 +382,11 @@ fun MenuItemCard(
                     shape=RoundedCornerShape(12.dp)
                 ){
                     Text(
-                        text="ADD",
+                        text=if(item.hasVariants || item.hasAddons){
+                            "SELECT"
+                        }else{
+                            "ADD"
+                        },
                         fontWeight=FontWeight.Bold,
                         color=orange
                     )
