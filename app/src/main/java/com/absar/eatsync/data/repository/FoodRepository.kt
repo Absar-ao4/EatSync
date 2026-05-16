@@ -5,7 +5,7 @@ import com.absar.eatsync.data.remote.RetrofitClient
 import com.absar.eatsync.model.food.FoodAddress
 import com.absar.eatsync.model.food.FoodMenuItem
 import com.absar.eatsync.model.food.FoodRestaurant
-
+import com.absar.eatsync.model.food.FoodMenuItemDetails
 class FoodRepository {
     suspend fun getAddresses():List<FoodAddress>{
         return try{
@@ -23,6 +23,38 @@ class FoodRepository {
                     addressCategory="College",
                     addressTag="College"
                 )
+            )
+        }
+    }
+
+    suspend fun getMenuItemDetails(
+        restaurantId:String,
+        itemId:String
+    ):FoodMenuItemDetails{
+        return try{
+            val details=RetrofitClient.foodApiService.getMenuItemDetails(
+                restaurantId=restaurantId,
+                itemId=itemId
+            )
+            Log.d(
+                "EatSyncBackend",
+                "Backend item details loaded for $restaurantId/$itemId"
+            )
+            details
+        }
+        catch(e:Exception){
+            Log.e(
+                "EatSyncBackend",
+                "Backend item details failed for $restaurantId/$itemId",
+                e
+            )
+            FoodMenuItemDetails(
+                itemId=itemId,
+                restaurantId=restaurantId,
+                name="Customization details unavailable",
+                basePrice=0,
+                variantGroups=emptyList(),
+                addonGroups=emptyList()
             )
         }
     }

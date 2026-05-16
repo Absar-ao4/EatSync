@@ -5,6 +5,11 @@ import com.absar.eatsyncbackend.dto.FoodMenuItemDto;
 import com.absar.eatsyncbackend.dto.FoodRestaurantDto;
 import com.absar.eatsyncbackend.dto.McpToolStatusDto;
 import org.springframework.stereotype.Service;
+import com.absar.eatsyncbackend.dto.AddonChoiceDto;
+import com.absar.eatsyncbackend.dto.AddonGroupDto;
+import com.absar.eatsyncbackend.dto.FoodMenuItemDetailsDto;
+import com.absar.eatsyncbackend.dto.VariantGroupDto;
+import com.absar.eatsyncbackend.dto.VariantOptionDto;
 
 import java.util.List;
 
@@ -20,6 +25,92 @@ public class FoodService {
                         "College",
                         "College"
                 )
+        );
+    }
+
+    public FoodMenuItemDetailsDto getMenuItemDetails(
+            String restaurantId,
+            String itemId
+    ) {
+        if (restaurantId.equals("1256056") && itemId.equals("192016466")) {
+            return new FoodMenuItemDetailsDto(
+                    "192016466",
+                    "1256056",
+                    "Hyderabadi Veg Dum Biryani",
+                    379,
+                    List.of(
+                            new VariantGroupDto(
+                                    "70781955",
+                                    "Size",
+                                    List.of(
+                                            new VariantOptionDto(
+                                                    "210558384",
+                                                    "Serves 1",
+                                                    true,
+                                                    true
+                                            ),
+                                            new VariantOptionDto(
+                                                    "210558385",
+                                                    "2 packs of Serves 1 (Save Rs 69)",
+                                                    true,
+                                                    false
+                                            )
+                                    )
+                            )
+                    ),
+                    List.of(
+                            new AddonGroupDto(
+                                    "269137381",
+                                    "Add Ons Best Sellings !",
+                                    4,
+                                    0,
+                                    List.of(
+                                            new AddonChoiceDto(
+                                                    "140911843",
+                                                    "Paneer Tikka Mini (2 Pcs)",
+                                                    79
+                                            ),
+                                            new AddonChoiceDto(
+                                                    "140911815",
+                                                    "Jeera Raita",
+                                                    19
+                                            ),
+                                            new AddonChoiceDto(
+                                                    "140911858",
+                                                    "Mirchi Ka Salan",
+                                                    25
+                                            )
+                                    )
+                            ),
+                            new AddonGroupDto(
+                                    "269137384",
+                                    "Choose Beverages",
+                                    2,
+                                    0,
+                                    List.of(
+                                            new AddonChoiceDto(
+                                                    "bev_1",
+                                                    "Coke",
+                                                    49
+                                            ),
+                                            new AddonChoiceDto(
+                                                    "bev_2",
+                                                    "Sprite",
+                                                    49
+                                            )
+                                    )
+                            )
+                    )
+            );
+        }
+
+        return new FoodMenuItemDetailsDto(
+                itemId,
+                restaurantId,
+                "Customization details unavailable",
+                0,
+                List.of(),
+                List.of()
         );
     }
 

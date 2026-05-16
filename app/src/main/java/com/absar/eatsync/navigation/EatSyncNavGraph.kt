@@ -300,7 +300,8 @@ fun EatSyncNavGraph(){
                 onBackClick={
                     navController.popBackStack()
                 },
-                onAddCustomizedItemClick={
+                onAddCustomizedItemClick={customizedItem->
+                    cartViewModel.addItem(customizedItem)
                     navController.popBackStack()
                 }
             )

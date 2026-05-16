@@ -2,6 +2,7 @@ package com.absar.eatsync.data.remote
 
 import com.absar.eatsync.model.food.FoodAddress
 import com.absar.eatsync.model.food.FoodMenuItem
+import com.absar.eatsync.model.food.FoodMenuItemDetails
 import com.absar.eatsync.model.food.FoodRestaurant
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -18,4 +19,10 @@ interface FoodApiService {
     suspend fun getMenuItems(
         @Path("restaurantId") restaurantId:String
     ):List<FoodMenuItem>
+
+    @GET("api/food/menu-item-details/{restaurantId}/{itemId}")
+    suspend fun getMenuItemDetails(
+        @Path("restaurantId") restaurantId:String,
+        @Path("itemId") itemId:String
+    ):FoodMenuItemDetails
 }
