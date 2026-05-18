@@ -29,8 +29,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.absar.eatsync.model.CartItem
-import com.absar.eatsync.model.UserBill
 import com.absar.eatsync.model.Participant
+import com.absar.eatsync.model.UserBill
 
 @Composable
 fun BillSplitScreen(
@@ -45,11 +45,8 @@ fun BillSplitScreen(
     onCheckoutClick: () -> Unit,
     onBackClick: () -> Unit
 ){
-    val deliveryFee=if(cartItems.isEmpty()) 0
-    else 40
-
-    val platformFee=if(cartItems.isEmpty()) 0
-    else 10
+    val deliveryFee=if(cartItems.isEmpty()) 0 else 40
+    val platformFee=if(cartItems.isEmpty()) 0 else 10
 
     val totalSharedCharges=deliveryFee+platformFee
 
@@ -61,22 +58,22 @@ fun BillSplitScreen(
 
     val userBills=participants.map{participant->
         val itemTotal=cartItems
-            .filter{it.addedByName==participant.name }
-            .sumOf{it.price*it.quantity }
+            .filter{it.addedByName==participant.name}
+            .sumOf{it.price*it.quantity}
 
         UserBill(
-            userName = participant.name,
-            itemTotal = itemTotal,
-            sharedCharges = sharedChargePerUser,
-            finalAmount = itemTotal + sharedChargePerUser
+            userName=participant.name,
+            itemTotal=itemTotal,
+            sharedCharges=sharedChargePerUser,
+            finalAmount=itemTotal+sharedChargePerUser
         )
     }
 
     val grandTotal=userBills.sumOf{it.finalAmount}
     val readyCount=participants.count{it.ready}
     val allReady=participants.isNotEmpty()&&readyCount==participants.size
-    val currentUser = participants.firstOrNull { it.name == currentUserName }
-    val isCurrentUserHost = currentUser?.host == true
+    val currentUser=participants.firstOrNull{it.name==currentUserName}
+    val isCurrentUserHost=currentUser?.host==true
 
     val orange=Color(0xFFFC8019)
     val background=Color(0xFFFFF7ED)
@@ -122,6 +119,7 @@ fun BillSplitScreen(
                         modifier=Modifier.padding(top = 4.dp)
                     )
                 }
+
                 Box(
                     modifier=Modifier
                         .background(
@@ -173,12 +171,14 @@ fun BillSplitScreen(
                 modifier=Modifier.weight(1f)
             ){
                 items(userBills){bill->
-                    val participant=participants.firstOrNull{it.name == bill.userName}
+                    val participant=participants.firstOrNull{it.name==bill.userName}
+                    val userCartItems=cartItems.filter{it.addedByName==bill.userName}
 
                     UserBillCard(
                         bill=bill,
+                        userCartItems=userCartItems,
                         isReady=participant?.ready==true,
-                        canToggleReady=bill.userName==currentUserName && !isCartLocked,
+                        canToggleReady=bill.userName==currentUserName&&!isCartLocked,
                         isCartLocked=isCartLocked,
                         onReadyClick={
                             onToggleReady(bill.userName)
@@ -270,8 +270,7 @@ fun BillSplitScreen(
                             Text(
                                 text=if(isCurrentUserHost){
                                     "Open Checkout"
-                                }
-                                else{
+                                }else{
                                     "View Checkout Status"
                                 },
                                 fontWeight=FontWeight.Bold
@@ -295,9 +294,8 @@ fun BillSplitScreen(
                                 )
                             }
                         }
-                    }
-                    else{
-                        if(allReady && isCurrentUserHost){
+                    }else{
+                        if(allReady&&isCurrentUserHost){
                             Button(
                                 onClick=onLockCartClick,
                                 modifier=Modifier
@@ -313,16 +311,14 @@ fun BillSplitScreen(
                                     fontWeight=FontWeight.Bold
                                 )
                             }
-                        }
-                        else if(allReady && !isCurrentUserHost){
+                        }else if(allReady&&!isCurrentUserHost){
                             Text(
-                                text = "Everyone is ready. Waiting for host to lock cart.",
-                                style = MaterialTheme.typography.bodyMedium,
+                                text="Everyone is ready. Waiting for host to lock cart.",
+                                style=MaterialTheme.typography.bodyMedium,
                                 color=darkText,
-                                fontWeight = FontWeight.Bold
+                                fontWeight=FontWeight.Bold
                             )
-                        }
-                        else{
+                        }else{
                             Text(
                                 text="Ask everyone to mark ready before checkout.",
                                 style=MaterialTheme.typography.bodyMedium,
@@ -356,6 +352,7 @@ fun BillSplitScreen(
 @Composable
 fun UserBillCard(
     bill:UserBill,
+    userCartItems:List<CartItem>,
     isReady:Boolean,
     canToggleReady:Boolean,
     isCartLocked:Boolean,
@@ -407,9 +404,21 @@ fun UserBillCard(
                     color=darkText
                 )
             }
-
             Spacer(modifier=Modifier.height(10.dp))
-
+            if(userCartItems.isNotEmpty()){
+                Text(
+                    text="Items added",
+                    style=MaterialTheme.typography.bodySmall,
+                    color=orange,
+                    fontWeight=FontWeight.Bold
+                )
+                Spacer(modifier=Modifier.height(6.dp))
+                userCartItems.forEach{item->
+                    BillItemRow(item=item)
+                    Spacer(modifier=Modifier.height(8.dp))
+                }
+                Spacer(modifier=Modifier.height(4.dp))
+            }
             BillSplitRow(label="Item total",amount=bill.itemTotal)
             BillSplitRow(label="Shared charges",amount=bill.sharedCharges)
 
@@ -417,8 +426,8 @@ fun UserBillCard(
 
             if(canToggleReady){
                 Button(
-                    onClick = onReadyClick,
-                    modifier = Modifier
+                    onClick=onReadyClick,
+                    modifier=Modifier
                         .fillMaxWidth()
                         .height(48.dp),
                     colors=ButtonDefaults.buttonColors(
@@ -427,7 +436,7 @@ fun UserBillCard(
                     shape=RoundedCornerShape(14.dp)
                 ){
                     Text(
-                        text = if (isReady) "Ready ✓" else "Mark Ready",
+                        text=if(isReady) "Ready ✓" else "Mark Ready",
                         fontWeight=FontWeight.Bold
                     )
                 }
@@ -441,9 +450,9 @@ fun UserBillCard(
                         .padding(horizontal = 12.dp, vertical = 9.dp)
                 ){
                     Text(
-                        text=if(isCartLocked && isReady){
+                        text=if(isCartLocked&&isReady){
                             "Ready ✓"
-                        }else if(isCartLocked && !isReady){
+                        }else if(isCartLocked&&!isReady){
                             "Cart locked"
                         }else if(isReady){
                             "Ready ✓"
@@ -451,11 +460,70 @@ fun UserBillCard(
                             "Waiting"
                         },
                         color=if(isReady) green else orange,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Bold
+                        style=MaterialTheme.typography.bodySmall,
+                        fontWeight=FontWeight.Bold
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun BillItemRow(
+    item:CartItem
+){
+    val darkText=Color(0xFF1C1C1C)
+    val grayText=Color(0xFF686B78)
+    val orange=Color(0xFFFC8019)
+
+    Column(
+        modifier=Modifier
+            .fillMaxWidth()
+            .background(
+                color=Color(0xFFFFF7ED),
+                shape=RoundedCornerShape(14.dp)
+            )
+            .padding(10.dp)
+    ){
+        Row(
+            modifier=Modifier.fillMaxWidth(),
+            horizontalArrangement=Arrangement.SpaceBetween,
+            verticalAlignment=Alignment.Top
+        ){
+            Column(
+                modifier=Modifier.weight(1f)
+            ){
+                Text(
+                    text=item.name,
+                    style=MaterialTheme.typography.bodyMedium,
+                    fontWeight=FontWeight.Bold,
+                    color=darkText
+                )
+                if(item.description.isNotBlank()){
+                    Text(
+                        text=item.description,
+                        style=MaterialTheme.typography.bodySmall,
+                        color=orange,
+                        fontWeight=FontWeight.SemiBold,
+                        modifier=Modifier.padding(top = 3.dp)
+                    )
+                }
+                Text(
+                    text="₹${item.price} × ${item.quantity}",
+                    style=MaterialTheme.typography.bodySmall,
+                    color=grayText,
+                    modifier=Modifier.padding(top = 3.dp)
+                )
+            }
+
+            Text(
+                text="₹${item.price*item.quantity}",
+                style=MaterialTheme.typography.bodyMedium,
+                fontWeight=FontWeight.Bold,
+                color=darkText,
+                modifier=Modifier.padding(start = 8.dp)
+            )
         }
     }
 }
@@ -473,20 +541,18 @@ fun BillSplitRow(
         modifier=Modifier
             .fillMaxWidth()
             .padding(vertical=3.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement=Arrangement.SpaceBetween
     ){
         Text(
             text=label,
             color=if(isBold) darkText else grayText,
-            fontWeight=if(isBold) FontWeight.Bold
-            else FontWeight.Normal
+            fontWeight=if(isBold) FontWeight.Bold else FontWeight.Normal
         )
 
         Text(
             text="₹$amount",
             color=darkText,
-            fontWeight=if(isBold) FontWeight.Bold
-            else FontWeight.Normal
+            fontWeight=if(isBold) FontWeight.Bold else FontWeight.Normal
         )
     }
 }
