@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -25,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,8 +34,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.absar.eatsync.data.repository.FoodRepository
-import com.absar.eatsync.model.food.FoodMenuItemDetails
 import com.absar.eatsync.model.food.FoodMenuItem
+import com.absar.eatsync.model.food.FoodMenuItemDetails
+
 @Composable
 fun CustomizationScreen(
     sessionCode:String,
@@ -45,20 +44,27 @@ fun CustomizationScreen(
     itemId:String,
     itemName:String,
     onBackClick:()->Unit,
-    onAddCustomizedItemClick:(FoodMenuItem)->Unit){
+    onAddCustomizedItemClick:(FoodMenuItem)->Unit
+){
     val foodRepository=remember { FoodRepository() }
+
     var itemDetails by remember { mutableStateOf<FoodMenuItemDetails?>(null) }
     var isLoading by remember { mutableStateOf(true) }
+
     val selectedVariants=remember { mutableStateMapOf<String,String>() }
-    val selectedAddons=remember { mutableStateListOf<String>() }
+    val selectedAddonsByGroup=remember { mutableStateMapOf<String,Set<String>>() }
 
     LaunchedEffect(restaurantId,itemId){
         isLoading=true
+
         val details=foodRepository.getMenuItemDetails(
             restaurantId=restaurantId,
             itemId=itemId
         )
+
         itemDetails=details
+        selectedVariants.clear()
+        selectedAddonsByGroup.clear()
 
         details.variantGroups.forEach { group ->
             val defaultOption=group.options.firstOrNull { it.defaultSelected }
@@ -76,6 +82,19 @@ fun CustomizationScreen(
     val background=Color(0xFFFFF8F1)
     val darkText=Color(0xFF1C1C1C)
     val grayText=Color(0xFF686B78)
+    val red=Color(0xFFE53935)
+
+    val details=itemDetails
+
+    val selectedAddonTotal=details?.addonGroups?.sumOf { group ->
+        val selectedIds=selectedAddonsByGroup[group.groupId] ?: emptySet()
+
+        group.choices
+            .filter { choice -> selectedIds.contains(choice.id) }
+            .sumOf { choice -> choice.price }
+    } ?: 0
+
+    val finalPrice=(details?.basePrice ?: 0) + selectedAddonTotal
 
     Column(
         modifier=Modifier
@@ -124,10 +143,7 @@ fun CustomizationScreen(
                     )
                 }
             }
-        }
-        else{
-            val details=itemDetails
-
+        }else{
             LazyColumn(
                 modifier=Modifier.weight(1f)
             ){
@@ -157,6 +173,22 @@ fun CustomizationScreen(
                                 color=darkText,
                                 fontWeight=FontWeight.Bold,
                                 modifier=Modifier.padding(top = 8.dp)
+                            )
+
+                            if(selectedAddonTotal > 0){
+                                Text(
+                                    text="Add-ons total: ₹$selectedAddonTotal",
+                                    color=orange,
+                                    fontWeight=FontWeight.Bold,
+                                    modifier=Modifier.padding(top = 4.dp)
+                                )
+                            }
+
+                            Text(
+                                text="Final price: ₹$finalPrice",
+                                color=darkText,
+                                fontWeight=FontWeight.Bold,
+                                modifier=Modifier.padding(top = 4.dp)
                             )
 
                             Text(
@@ -260,7 +292,7 @@ fun CustomizationScreen(
                                             if(!option.inStock){
                                                 Text(
                                                     text="Out of stock",
-                                                    color=Color(0xFFE53935),
+                                                    color=red,
                                                     style=MaterialTheme.typography.bodySmall
                                                 )
                                             }
@@ -276,6 +308,8 @@ fun CustomizationScreen(
 
                 details?.addonGroups?.forEach { group ->
                     item{
+                        val selectedIds=selectedAddonsByGroup[group.groupId] ?: emptySet()
+
                         Card(
                             modifier=Modifier.fillMaxWidth(),
                             colors=CardDefaults.cardColors(
@@ -302,16 +336,18 @@ fun CustomizationScreen(
                                 Spacer(modifier=Modifier.height(8.dp))
 
                                 group.choices.forEach { choice ->
-                                    val isChecked=selectedAddons.contains(choice.id)
+                                    val isChecked=selectedIds.contains(choice.id)
 
                                     Row(
                                         modifier=Modifier
                                             .fillMaxWidth()
                                             .clickable {
-                                                if(isChecked){
-                                                    selectedAddons.remove(choice.id)
-                                                }else{
-                                                    selectedAddons.add(choice.id)
+                                                val currentSet=selectedAddonsByGroup[group.groupId] ?: emptySet()
+
+                                                if(currentSet.contains(choice.id)){
+                                                    selectedAddonsByGroup[group.groupId]=currentSet - choice.id
+                                                }else if(currentSet.size < group.maxAddons){
+                                                    selectedAddonsByGroup[group.groupId]=currentSet + choice.id
                                                 }
                                             }
                                             .padding(vertical = 6.dp),
@@ -320,10 +356,14 @@ fun CustomizationScreen(
                                         Checkbox(
                                             checked=isChecked,
                                             onCheckedChange={checked->
+                                                val currentSet=selectedAddonsByGroup[group.groupId] ?: emptySet()
+
                                                 if(checked){
-                                                    selectedAddons.add(choice.id)
+                                                    if(currentSet.size < group.maxAddons){
+                                                        selectedAddonsByGroup[group.groupId]=currentSet + choice.id
+                                                    }
                                                 }else{
-                                                    selectedAddons.remove(choice.id)
+                                                    selectedAddonsByGroup[group.groupId]=currentSet - choice.id
                                                 }
                                             }
                                         )
@@ -356,29 +396,27 @@ fun CustomizationScreen(
 
         Button(
             onClick={
-                val details=itemDetails
-                if(details != null && details.basePrice > 0){
-                    val selectedAddonTotal=details.addonGroups.sumOf { group ->
-                        group.choices
-                            .filter { choice -> selectedAddons.contains(choice.id) }
-                            .sumOf { choice -> choice.price }
-                    }
-                    val finalPrice=details.basePrice + selectedAddonTotal
-                    val selectedVariantNames=details.variantGroups.mapNotNull { group ->
-                        val selectedOptionId=selectedVariants[group.groupId]
-                        val selectedOption=group.options.firstOrNull {
-                            it.id==selectedOptionId
-                        }
+                val currentDetails=itemDetails
 
-                        selectedOption?.name
+                if(currentDetails != null && currentDetails.basePrice > 0){
+                    val selectedVariantNames=currentDetails.variantGroups.mapNotNull { group ->
+                        val selectedOptionId=selectedVariants[group.groupId]
+
+                        group.options.firstOrNull {
+                            it.id==selectedOptionId
+                        }?.name
                     }
-                    val selectedAddonNames=details.addonGroups.flatMap { group ->
+
+                    val selectedAddonNames=currentDetails.addonGroups.flatMap { group ->
+                        val selectedIds=selectedAddonsByGroup[group.groupId] ?: emptySet()
+
                         group.choices.filter { choice ->
-                            selectedAddons.contains(choice.id)
+                            selectedIds.contains(choice.id)
                         }.map { choice ->
                             choice.name
                         }
                     }
+
                     val description=buildString {
                         append("Customized item")
 
@@ -392,17 +430,36 @@ fun CustomizationScreen(
                             append(selectedAddonNames.joinToString(", "))
                         }
                     }
+
+                    val selectedVariantIds=currentDetails.variantGroups.mapNotNull { group ->
+                        selectedVariants[group.groupId]
+                    }
+
+                    val selectedAddonIds=currentDetails.addonGroups.flatMap { group ->
+                        selectedAddonsByGroup[group.groupId] ?: emptySet()
+                    }
+
+                    val customizationKey=(selectedVariantIds + selectedAddonIds)
+                        .sorted()
+                        .joinToString("_")
+
+                    val customizedItemId=if(customizationKey.isNotBlank()){
+                        "${currentDetails.itemId}_custom_$customizationKey"
+                    }else{
+                        currentDetails.itemId
+                    }
+
                     val customizedItem=FoodMenuItem(
-                        id=details.itemId,
-                        restaurantId=details.restaurantId,
-                        name=details.name,
+                        id=customizedItemId,
+                        restaurantId=currentDetails.restaurantId,
+                        name=currentDetails.name,
                         description=description,
                         price=finalPrice,
                         veg=true,
                         imageUrl="",
                         inStock=true,
-                        hasVariants=details.variantGroups.isNotEmpty(),
-                        hasAddons=details.addonGroups.isNotEmpty()
+                        hasVariants=currentDetails.variantGroups.isNotEmpty(),
+                        hasAddons=currentDetails.addonGroups.isNotEmpty()
                     )
 
                     onAddCustomizedItemClick(customizedItem)
@@ -415,13 +472,6 @@ fun CustomizationScreen(
             ),
             shape=RoundedCornerShape(14.dp)
         ){
-            val details=itemDetails
-            val selectedAddonTotal=details?.addonGroups?.sumOf { group ->
-                group.choices
-                    .filter { choice -> selectedAddons.contains(choice.id) }
-                    .sumOf { choice -> choice.price }
-            } ?: 0
-            val finalPrice=(details?.basePrice ?: 0) + selectedAddonTotal
             Text("Add item • ₹$finalPrice")
         }
 

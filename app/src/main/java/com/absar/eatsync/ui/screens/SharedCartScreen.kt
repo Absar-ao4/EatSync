@@ -56,6 +56,7 @@ fun SharedCartScreen(
     val darkText=Color(0xFF1C1C1C)
     val grayText=Color(0xFF686B78)
     val green=Color(0xFF48C479)
+
     Box(
         modifier=Modifier
             .fillMaxSize()
@@ -68,6 +69,7 @@ fun SharedCartScreen(
                 .background(Color(0xFFFFE4C7), CircleShape)
                 .padding(66.dp)
         )
+
         Column(
             modifier=Modifier.fillMaxSize()
         ){
@@ -85,6 +87,7 @@ fun SharedCartScreen(
                         fontWeight=FontWeight.ExtraBold,
                         color=darkText
                     )
+
                     Text(
                         text="Session: $sessionCode",
                         style=MaterialTheme.typography.bodyMedium,
@@ -92,6 +95,7 @@ fun SharedCartScreen(
                         modifier=Modifier.padding(top = 4.dp)
                     )
                 }
+
                 Box(
                     modifier=Modifier
                         .background(
@@ -102,15 +106,17 @@ fun SharedCartScreen(
                 ){
                     Text(
                         text=if(isCartLocked) "LOCKED"
-                                else "${cartItems.size} ITEMS",
+                        else "${cartItems.size} ITEMS",
                         color=if(isCartLocked) orange
-                                else green,
+                        else green,
                         fontWeight=FontWeight.ExtraBold,
                         style=MaterialTheme.typography.bodySmall
                     )
                 }
             }
+
             Spacer(modifier=Modifier.height(16.dp))
+
             if(isCartLocked){
                 Card(
                     modifier=Modifier.fillMaxWidth(),
@@ -126,8 +132,10 @@ fun SharedCartScreen(
                         color=darkText
                     )
                 }
+
                 Spacer(modifier=Modifier.height(14.dp))
             }
+
             if(cartItems.isEmpty()){
                 Card(
                     modifier=Modifier.fillMaxWidth(),
@@ -149,6 +157,7 @@ fun SharedCartScreen(
                             fontWeight=FontWeight.Bold,
                             color=darkText
                         )
+
                         Text(
                             text="Go back to the menu and add some dishes.",
                             style=MaterialTheme.typography.bodyMedium,
@@ -157,6 +166,7 @@ fun SharedCartScreen(
                         )
                     }
                 }
+
                 Spacer(modifier=Modifier.weight(1f))
             }
             else{
@@ -178,11 +188,14 @@ fun SharedCartScreen(
                                 onRemoveItem(item.id)
                             }
                         )
+
                         Spacer(modifier=Modifier.height(12.dp))
                     }
                 }
             }
+
             Spacer(modifier=Modifier.height(12.dp))
+
             Card(
                 modifier=Modifier
                     .fillMaxWidth()
@@ -210,6 +223,7 @@ fun SharedCartScreen(
                                 fontWeight=FontWeight.Bold,
                                 color=darkText
                             )
+
                             Text(
                                 text="Before personal split",
                                 style=MaterialTheme.typography.bodySmall,
@@ -217,6 +231,7 @@ fun SharedCartScreen(
                                 modifier=Modifier.padding(top = 3.dp)
                             )
                         }
+
                         Text(
                             text="₹$grandTotal",
                             style=MaterialTheme.typography.titleLarge,
@@ -224,11 +239,15 @@ fun SharedCartScreen(
                             color=orange
                         )
                     }
+
                     Spacer(modifier=Modifier.height(14.dp))
+
                     BillRow(label="Item Total",amount=itemTotal)
                     BillRow(label="Delivery Fee",amount=deliveryFee)
                     BillRow(label="Platform Fee",amount=platformFee)
+
                     Spacer(modifier=Modifier.height(10.dp))
+
                     BillRow(
                         label="Grand Total",
                         amount=grandTotal,
@@ -236,7 +255,9 @@ fun SharedCartScreen(
                     )
                 }
             }
+
             Spacer(modifier=Modifier.height(14.dp))
+
             Button(
                 onClick=onContinueToBillSplitClick,
                 enabled=cartItems.isNotEmpty(),
@@ -253,7 +274,9 @@ fun SharedCartScreen(
                     fontWeight=FontWeight.Bold
                 )
             }
+
             Spacer(modifier=Modifier.height(10.dp))
+
             OutlinedButton(
                 onClick=onBackClick,
                 modifier=Modifier
@@ -312,12 +335,13 @@ fun CartItemCard(
                             .padding(horizontal = 10.dp, vertical = 8.dp)
                     ){
                         Text(
-                            text="VEG",
+                            text="ITEM",
                             color=orange,
                             fontWeight=FontWeight.Bold,
                             style=MaterialTheme.typography.bodySmall
                         )
                     }
+
                     Column(
                         modifier=Modifier.padding(start = 12.dp)
                     ){
@@ -327,12 +351,24 @@ fun CartItemCard(
                             fontWeight=FontWeight.Bold,
                             color=darkText
                         )
+
+                        if(item.description.isNotBlank()){
+                            Text(
+                                text=item.description,
+                                style=MaterialTheme.typography.bodySmall,
+                                color=orange,
+                                fontWeight=FontWeight.SemiBold,
+                                modifier=Modifier.padding(top = 4.dp)
+                            )
+                        }
+
                         Text(
                             text="Added by ${item.addedByName}",
                             style=MaterialTheme.typography.bodySmall,
                             color=grayText,
-                            modifier=Modifier.padding(top = 3.dp)
+                            modifier=Modifier.padding(top = 5.dp)
                         )
+
                         Text(
                             text="₹${item.price} each",
                             style=MaterialTheme.typography.bodySmall,
@@ -341,6 +377,7 @@ fun CartItemCard(
                         )
                     }
                 }
+
                 Text(
                     text="₹${item.price * item.quantity}",
                     style=MaterialTheme.typography.bodyLarge,
@@ -348,7 +385,9 @@ fun CartItemCard(
                     color=darkText
                 )
             }
+
             Spacer(modifier=Modifier.height(14.dp))
+
             if(canEdit){
                 Row(
                     modifier=Modifier.fillMaxWidth(),
@@ -367,12 +406,14 @@ fun CartItemCard(
                                 color=orange
                             )
                         }
+
                         Text(
                             text="${item.quantity}",
                             modifier=Modifier.padding(horizontal = 12.dp),
                             fontWeight=FontWeight.ExtraBold,
                             color=darkText
                         )
+
                         OutlinedButton(
                             onClick=onIncreaseClick,
                             shape=RoundedCornerShape(12.dp)
@@ -383,6 +424,7 @@ fun CartItemCard(
                             )
                         }
                     }
+
                     OutlinedButton(
                         onClick=onRemoveClick,
                         shape=RoundedCornerShape(12.dp)
@@ -420,6 +462,7 @@ fun BillRow(
 ){
     val darkText=Color(0xFF1C1C1C)
     val grayText=Color(0xFF686B78)
+
     Row(
         modifier=Modifier
             .fillMaxWidth()
@@ -436,6 +479,7 @@ fun BillRow(
                 FontWeight.Normal
             }
         )
+
         Text(
             text="₹$amount",
             color=darkText,
