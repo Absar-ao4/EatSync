@@ -1,7 +1,9 @@
 package com.absar.eatsync.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,13 +15,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,7 +35,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -57,191 +65,391 @@ fun MenuScreen(
     val foodRepository=remember { FoodRepository() }
     var menuItems by remember { mutableStateOf<List<FoodMenuItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
-    var customMessage by remember { mutableStateOf<String?>(null) }
+
     LaunchedEffect(restaurantId){
+        isLoading=true
         menuItems=foodRepository.getMenuItems(restaurantId)
         isLoading=false
-        customMessage=null
     }
+
     val orange=Color(0xFFFC8019)
-    val background=Color(0xFFFFF8F1)
+    val deepOrange=Color(0xFFE95D00)
+    val background=Color(0xFFFFF7ED)
     val darkText=Color(0xFF1C1C1C)
     val grayText=Color(0xFF686B78)
+    val lightOrange=Color(0xFFFFE8D2)
+    val green=Color(0xFF48C479)
+
     val isCurrentRestaurantActive=selectedRestaurantId==restaurantId
     val isMenuDisabled=isCartLocked || !isCurrentRestaurantActive
-    Column(
+    val userCartCount=cartItems
+        .filter { it.addedByName==currentUserName }
+        .sumOf { it.quantity }
+
+    Box(
         modifier=Modifier
             .fillMaxSize()
             .background(background)
-            .padding(20.dp)
     ){
-        Text(
-            text=restaurantName,
-            style=MaterialTheme.typography.headlineMedium,
-            fontWeight=FontWeight.Bold,
-            color=darkText
+        Box(
+            modifier=Modifier
+                .fillMaxWidth()
+                .height(230.dp)
+                .background(
+                    Brush.verticalGradient(
+                        colors=listOf(
+                            Color(0xFFFFD2A1),
+                            background
+                        )
+                    )
+                )
         )
-        Text(
-            text="Session: $sessionCode",
-            style=MaterialTheme.typography.bodyMedium,
-            color=grayText,
-            modifier=Modifier.padding(top = 4.dp)
+
+        Box(
+            modifier=Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 30.dp, end = 18.dp)
+                .background(Color(0x33FFFFFF), CircleShape)
+                .size(130.dp)
         )
-        Text(
-            text=if(isLoading){
-                "Loading menu from EatSync backend..."
-            }else{
-                "Choose dishes from $restaurantName for your shared group order"
-            },
-            style=MaterialTheme.typography.bodyMedium,
-            color=grayText,
-            modifier=Modifier.padding(top = 6.dp, bottom = 16.dp)
-        )
-        customMessage?.let { message ->
-            Card(
-                modifier=Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 14.dp),
-                colors=CardDefaults.cardColors(
-                    containerColor=Color.White
-                ),
-                elevation=CardDefaults.cardElevation(
-                    defaultElevation=2.dp
-                ),
-                shape=RoundedCornerShape(16.dp)
+
+        Column(
+            modifier=Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp)
+        ){
+            Spacer(modifier=Modifier.height(28.dp))
+
+            Row(
+                modifier=Modifier.fillMaxWidth(),
+                horizontalArrangement=Arrangement.SpaceBetween,
+                verticalAlignment=Alignment.Top
             ){
                 Column(
-                    modifier=Modifier.padding(14.dp)
+                    modifier=Modifier.weight(1f)
                 ){
                     Text(
-                        text="Customization needed",
-                        fontWeight=FontWeight.Bold,
-                        color=orange
-                    )
-                    Text(
-                        text=message,
-                        color=grayText,
-                        style=MaterialTheme.typography.bodyMedium,
-                        modifier=Modifier.padding(top = 4.dp)
-                    )
-                }
-            }
-        }
-        if(!isCurrentRestaurantActive){
-            Card(
-                modifier=Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                colors=CardDefaults.cardColors(
-                    containerColor=Color.White
-                ),
-                shape=RoundedCornerShape(18.dp)
-            ){
-                Column(
-                    modifier=Modifier.padding(16.dp)
-                ){
-                    Text(
-                        text="Restaurant changed",
-                        fontWeight=FontWeight.Bold,
+                        text=restaurantName,
+                        style=MaterialTheme.typography.headlineMedium,
+                        fontWeight=FontWeight.ExtraBold,
                         color=darkText
                     )
 
                     Text(
-                        text="The host changed the restaurant. This old menu is no longer active. Go back and open the latest menu.",
+                        text=if(isLoading){
+                            "Fetching menu from EatSync backend..."
+                        }else{
+                            "${menuItems.size} items available for group order"
+                        },
+                        style=MaterialTheme.typography.bodyMedium,
                         color=grayText,
-                        modifier=Modifier.padding(top = 6.dp)
+                        modifier=Modifier.padding(top = 4.dp)
                     )
                 }
+
+                Surface(
+                    shape=RoundedCornerShape(18.dp),
+                    color=Color.White,
+                    shadowElevation=3.dp
+                ){
+                    Column(
+                        modifier=Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalAlignment=Alignment.CenterHorizontally
+                    ){
+                        Text(
+                            text="SESSION",
+                            style=MaterialTheme.typography.labelSmall,
+                            color=grayText,
+                            fontWeight=FontWeight.Bold
+                        )
+
+                        Text(
+                            text=sessionCode,
+                            color=orange,
+                            fontWeight=FontWeight.ExtraBold
+                        )
+                    }
+                }
             }
-        }
-        else if(isCartLocked){
+
+            Spacer(modifier=Modifier.height(18.dp))
+
             Card(
                 modifier=Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+                    .shadow(
+                        elevation=8.dp,
+                        shape=RoundedCornerShape(26.dp)
+                    ),
+                shape=RoundedCornerShape(26.dp),
                 colors=CardDefaults.cardColors(
                     containerColor=Color.White
-                ),
-                shape=RoundedCornerShape(18.dp)
-            ){
-                Text(
-                    text="Cart is locked. Menu items can no longer be added.",
-                    modifier=Modifier.padding(16.dp),
-                    fontWeight=FontWeight.Bold,
-                    color=darkText
                 )
-            }
-        }
-        LazyColumn(
-            modifier=Modifier.weight(1f)
-        ){
-            items(menuItems){item->
-                val itemId="${item.id}_$currentUserName"
-                val cartItem=cartItems.firstOrNull{
-                    it.id==itemId&&it.addedByName==currentUserName
-                }
+            ){
+                Column(
+                    modifier=Modifier.padding(18.dp)
+                ){
+                    Row(
+                        modifier=Modifier.fillMaxWidth(),
+                        horizontalArrangement=Arrangement.SpaceBetween,
+                        verticalAlignment=Alignment.CenterVertically
+                    ){
+                        Column(
+                            modifier=Modifier.weight(1f)
+                        ){
+                            Text(
+                                text="Group menu",
+                                style=MaterialTheme.typography.titleMedium,
+                                fontWeight=FontWeight.Bold,
+                                color=darkText
+                            )
 
-                val isItemDisabled=isMenuDisabled || !item.inStock
-                val needsCustomization=item.hasVariants || item.hasAddons
+                            Text(
+                                text="Add simple items directly. Customize items with variants or add-ons before adding.",
+                                style=MaterialTheme.typography.bodySmall,
+                                color=grayText,
+                                modifier=Modifier.padding(top = 4.dp)
+                            )
+                        }
 
-                MenuItemCard(
-                    item=item,
-                    cartItem=cartItem,
-                    isItemDisabled=isItemDisabled,
-                    isCartLocked=isCartLocked,
-                    isCurrentRestaurantActive=isCurrentRestaurantActive,
-                    orange=orange,
-                    darkText=darkText,
-                    grayText=grayText,
-                    onAddClick={
-                        if(!isItemDisabled){
-                            if(needsCustomization){
-                                onCustomizeItemClick(item)
-                            }
-                            else{
-                                customMessage=null
-                                onAddItemClick(item)
-                            }
-                        }
-                    },
-                    onIncreaseClick={
-                        if(cartItem != null && !isItemDisabled){
-                            onIncreaseQuantity(cartItem.id)
-                        }
-                    },
-                    onDecreaseClick={
-                        if(cartItem != null && !isItemDisabled){
-                            onDecreaseQuantity(cartItem.id)
+                        Box(
+                            modifier=Modifier
+                                .background(lightOrange, RoundedCornerShape(50.dp))
+                                .padding(horizontal = 10.dp, vertical = 6.dp)
+                        ){
+                            Text(
+                                text="Railway API",
+                                color=deepOrange,
+                                style=MaterialTheme.typography.bodySmall,
+                                fontWeight=FontWeight.Bold
+                            )
                         }
                     }
+
+                    Spacer(modifier=Modifier.height(14.dp))
+
+                    Row(
+                        modifier=Modifier.fillMaxWidth(),
+                        horizontalArrangement=Arrangement.spacedBy(10.dp)
+                    ){
+                        MenuInfoChip(
+                            text=if(isCartLocked) "Cart locked" else "Cart open",
+                            color=if(isCartLocked) orange else green
+                        )
+
+                        MenuInfoChip(
+                            text="$userCartCount in your cart",
+                            color=orange
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier=Modifier.height(14.dp))
+
+            if(!isCurrentRestaurantActive){
+                StatusCard(
+                    title="Restaurant changed",
+                    message="The host changed the restaurant. This old menu is no longer active. Go back and open the latest menu.",
+                    accentColor=orange,
+                    darkText=darkText,
+                    grayText=grayText
                 )
 
-                Spacer(modifier=Modifier.height(12.dp))
+                Spacer(modifier=Modifier.height(14.dp))
             }
+            else if(isCartLocked){
+                StatusCard(
+                    title="Cart is locked",
+                    message="Menu items can no longer be added because the host has locked checkout.",
+                    accentColor=orange,
+                    darkText=darkText,
+                    grayText=grayText
+                )
+
+                Spacer(modifier=Modifier.height(14.dp))
+            }
+
+            if(isLoading){
+                Card(
+                    modifier=Modifier.fillMaxWidth(),
+                    shape=RoundedCornerShape(24.dp),
+                    colors=CardDefaults.cardColors(
+                        containerColor=Color.White
+                    )
+                ){
+                    Column(
+                        modifier=Modifier
+                            .fillMaxWidth()
+                            .padding(28.dp),
+                        horizontalAlignment=Alignment.CenterHorizontally
+                    ){
+                        CircularProgressIndicator(
+                            color=orange
+                        )
+
+                        Text(
+                            text="Loading menu items...",
+                            color=grayText,
+                            modifier=Modifier.padding(top = 12.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier=Modifier.weight(1f))
+            }
+            else{
+                LazyColumn(
+                    modifier=Modifier.weight(1f)
+                ){
+                    items(menuItems){item->
+                        val itemId="${item.id}_$currentUserName"
+
+                        val cartItem=cartItems.firstOrNull{
+                            it.id==itemId&&it.addedByName==currentUserName
+                        }
+
+                        val isItemDisabled=isMenuDisabled || !item.inStock
+                        val needsCustomization=item.hasVariants || item.hasAddons
+
+                        MenuItemCard(
+                            item=item,
+                            cartItem=cartItem,
+                            isItemDisabled=isItemDisabled,
+                            isCartLocked=isCartLocked,
+                            isCurrentRestaurantActive=isCurrentRestaurantActive,
+                            orange=orange,
+                            darkText=darkText,
+                            grayText=grayText,
+                            onAddClick={
+                                if(!isItemDisabled){
+                                    if(needsCustomization){
+                                        onCustomizeItemClick(item)
+                                    }else{
+                                        onAddItemClick(item)
+                                    }
+                                }
+                            },
+                            onIncreaseClick={
+                                if(cartItem != null && !isItemDisabled){
+                                    onIncreaseQuantity(cartItem.id)
+                                }
+                            },
+                            onDecreaseClick={
+                                if(cartItem != null && !isItemDisabled){
+                                    onDecreaseQuantity(cartItem.id)
+                                }
+                            }
+                        )
+
+                        Spacer(modifier=Modifier.height(14.dp))
+                    }
+                }
+            }
+
+            Spacer(modifier=Modifier.height(10.dp))
+
+            Button(
+                onClick=onViewCartClick,
+                modifier=Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
+                colors=ButtonDefaults.buttonColors(
+                    containerColor=orange
+                ),
+                shape=RoundedCornerShape(16.dp)
+            ){
+                Text(
+                    text=if(userCartCount>0){
+                        "View Shared Cart • $userCartCount item(s)"
+                    }else{
+                        "View Shared Cart"
+                    },
+                    fontWeight=FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier=Modifier.height(10.dp))
+
+            OutlinedButton(
+                onClick=onBackClick,
+                modifier=Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
+                shape=RoundedCornerShape(16.dp),
+                colors=ButtonDefaults.outlinedButtonColors(
+                    containerColor=Color.White
+                )
+            ){
+                Text(
+                    text=if(!isCurrentRestaurantActive){
+                        "Back to latest session"
+                    }else{
+                        "Back"
+                    },
+                    color=orange,
+                    fontWeight=FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier=Modifier.height(14.dp))
         }
-        Button(
-            onClick=onViewCartClick,
-            modifier=Modifier.fillMaxWidth(),
-            colors=ButtonDefaults.buttonColors(
-                containerColor=orange
-            ),
-            shape=RoundedCornerShape(14.dp)
-        ){
-            Text("View Shared Cart")
-        }
-        Spacer(modifier=Modifier.height(12.dp))
-        OutlinedButton(
-            onClick=onBackClick,
-            modifier=Modifier.fillMaxWidth(),
-            shape=RoundedCornerShape(14.dp)
+    }
+}
+
+@Composable
+fun MenuInfoChip(
+    text:String,
+    color:Color
+){
+    Box(
+        modifier=Modifier
+            .background(
+                color=color.copy(alpha = 0.12f),
+                shape=RoundedCornerShape(50.dp)
+            )
+            .padding(horizontal = 10.dp, vertical = 6.dp)
+    ){
+        Text(
+            text=text,
+            color=color,
+            style=MaterialTheme.typography.bodySmall,
+            fontWeight=FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+fun StatusCard(
+    title:String,
+    message:String,
+    accentColor:Color,
+    darkText:Color,
+    grayText:Color
+){
+    Card(
+        modifier=Modifier.fillMaxWidth(),
+        colors=CardDefaults.cardColors(
+            containerColor=Color.White
+        ),
+        elevation=CardDefaults.cardElevation(
+            defaultElevation=3.dp
+        ),
+        shape=RoundedCornerShape(20.dp)
+    ){
+        Column(
+            modifier=Modifier.padding(16.dp)
         ){
             Text(
-                text=if(!isCurrentRestaurantActive){
-                    "Back to latest session"
-                }else{
-                    "Back"
-                },
-                color=orange
+                text=title,
+                fontWeight=FontWeight.Bold,
+                color=accentColor
+            )
+
+            Text(
+                text=message,
+                color=grayText,
+                modifier=Modifier.padding(top = 6.dp)
             )
         }
     }
@@ -263,166 +471,314 @@ fun MenuItemCard(
 ){
     val green=Color(0xFF48C479)
     val red=Color(0xFFE53935)
+    val softOrange=Color(0xFFFFF1E3)
+    val chipBg=Color(0xFFF8F8F8)
+
     Card(
         modifier=Modifier.fillMaxWidth(),
         colors=CardDefaults.cardColors(
             containerColor=Color.White
         ),
         elevation=CardDefaults.cardElevation(
-            defaultElevation=3.dp
+            defaultElevation=5.dp
         ),
-        shape=RoundedCornerShape(18.dp)
+        shape=RoundedCornerShape(26.dp)
     ){
-        Row(
-            modifier=Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalAlignment=Alignment.CenterVertically
+        Column(
+            modifier=Modifier.fillMaxWidth()
         ){
-            if(item.imageUrl.isNotBlank()){
-                AsyncImage(
-                    model=item.imageUrl,
-                    contentDescription=item.name,
+
+            Box(
+                modifier=Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .background(softOrange)
+            ){
+                if(item.imageUrl.isNotBlank()){
+                    AsyncImage(
+                        model=item.imageUrl,
+                        contentDescription=item.name,
+                        contentScale=ContentScale.Crop,
+                        modifier=Modifier.fillMaxSize()
+                    )
+                }else{
+                    Box(
+                        modifier=Modifier.fillMaxSize(),
+                        contentAlignment=Alignment.Center
+                    ){
+                        Text(
+                            text=item.name.take(1),
+                            style=MaterialTheme.typography.displaySmall,
+                            fontWeight=FontWeight.ExtraBold,
+                            color=orange
+                        )
+                    }
+                }
+
+                Row(
                     modifier=Modifier
-                        .size(82.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                )
-                Spacer(modifier=Modifier.width(12.dp))
+                        .align(Alignment.TopStart)
+                        .padding(12.dp),
+                    horizontalArrangement=Arrangement.spacedBy(6.dp)
+                ){
+                    VegChip(
+                        isVeg=item.veg,
+                        green=green,
+                        red=red
+                    )
+
+                    if(!item.inStock){
+                        MiniTag(
+                            text="Out of stock",
+                            color=red
+                        )
+                    }
+                }
+
+                if(item.hasVariants || item.hasAddons){
+                    Box(
+                        modifier=Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(12.dp)
+                    ){
+                        MiniTag(
+                            text="Customizable",
+                            color=orange
+                        )
+                    }
+                }
             }
 
             Column(
-                modifier=Modifier.weight(1f)
+                modifier=Modifier.padding(16.dp)
             ){
                 Text(
                     text=item.name,
                     style=MaterialTheme.typography.titleMedium,
-                    fontWeight=FontWeight.Bold,
+                    fontWeight=FontWeight.ExtraBold,
                     color=darkText
                 )
-                Text(
-                    text=item.description,
-                    style=MaterialTheme.typography.bodyMedium,
-                    color=grayText,
-                    modifier=Modifier.padding(top = 4.dp)
-                )
-                Text(
-                    text="₹${item.price}",
-                    style=MaterialTheme.typography.titleSmall,
-                    fontWeight=FontWeight.Bold,
-                    color=darkText,
-                    modifier=Modifier.padding(top = 8.dp)
-                )
 
-                Column(
-                    modifier=Modifier.padding(top = 8.dp)
-                ){
+                if(item.description.isNotBlank()){
                     Text(
-                        text=if(item.veg){
-                            "VEG"
-                        }else{
-                            "NON-VEG"
-                        },
-                        style=MaterialTheme.typography.bodySmall,
-                        fontWeight=FontWeight.Bold,
-                        color=if(item.veg){
-                            green
-                        }else{
-                            red
-                        }
-                    )
-                    if(item.hasVariants || item.hasAddons){
-                        Text(
-                            text=buildString {
-                                if(item.hasVariants){
-                                    append("Customizable")
-                                }
-                                if(item.hasVariants && item.hasAddons){
-                                    append(" • ")
-                                }
-                                if(item.hasAddons){
-                                    append("Add-ons available")
-                                }
-                            },
-                            style=MaterialTheme.typography.bodySmall,
-                            fontWeight=FontWeight.Bold,
-                            color=orange,
-                            modifier=Modifier.padding(top = 3.dp)
-                        )
-                    }
-                    if(!item.inStock){
-                        Text(
-                            text="OUT OF STOCK",
-                            style=MaterialTheme.typography.bodySmall,
-                            fontWeight=FontWeight.Bold,
-                            color=red,
-                            modifier=Modifier.padding(top = 3.dp)
-                        )
-                    }
-                }
-            }
-            Spacer(modifier=Modifier.width(10.dp))
-            if(isItemDisabled){
-                Text(
-                    text=if(!item.inStock){
-                        "OUT"
-                    }else if(isCartLocked){
-                        "LOCKED"
-                    }else if(!isCurrentRestaurantActive){
-                        "OLD MENU"
-                    }else{
-                        "DISABLED"
-                    },
-                    color=grayText,
-                    fontWeight=FontWeight.Bold
-                )
-            }
-            else if(cartItem == null){
-                OutlinedButton(
-                    onClick=onAddClick,
-                    shape=RoundedCornerShape(12.dp)
-                ){
-                    Text(
-                        text=if(item.hasVariants || item.hasAddons){
-                            "SELECT"
-                        }else{
-                            "ADD"
-                        },
-                        fontWeight=FontWeight.Bold,
-                        color=orange
+                        text=item.description,
+                        style=MaterialTheme.typography.bodyMedium,
+                        color=grayText,
+                        modifier=Modifier.padding(top = 6.dp),
+                        maxLines=2
                     )
                 }
-            }
-            else{
+
+                Spacer(modifier=Modifier.height(10.dp))
+
                 Row(
-                    verticalAlignment=Alignment.CenterVertically,
-                    horizontalArrangement=Arrangement.Center
+                    horizontalArrangement=Arrangement.spacedBy(8.dp)
                 ){
-                    OutlinedButton(
-                        onClick=onDecreaseClick,
-                        shape=RoundedCornerShape(12.dp)
-                    ){
-                        Text(
-                            text="-",
+                    if(item.hasVariants){
+                        MiniTag(
+                            text="Variants",
                             color=orange
                         )
                     }
-                    Text(
-                        text="${cartItem.quantity}",
-                        modifier=Modifier.padding(horizontal = 10.dp),
-                        fontWeight=FontWeight.Bold,
-                        color=darkText
-                    )
-                    OutlinedButton(
-                        onClick=onIncreaseClick,
-                        shape=RoundedCornerShape(12.dp)
-                    ){
-                        Text(
-                            text="+",
+
+                    if(item.hasAddons){
+                        MiniTag(
+                            text="Add-ons",
                             color=orange
                         )
+                    }
+
+                    if(item.inStock){
+                        Box(
+                            modifier=Modifier
+                                .background(
+                                    color=green.copy(alpha = 0.10f),
+                                    shape=RoundedCornerShape(50.dp)
+                                )
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ){
+                            Text(
+                                text="In stock",
+                                color=green,
+                                style=MaterialTheme.typography.labelSmall,
+                                fontWeight=FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier=Modifier.height(14.dp))
+
+                Row(
+                    modifier=Modifier.fillMaxWidth(),
+                    horizontalArrangement=Arrangement.SpaceBetween,
+                    verticalAlignment=Alignment.CenterVertically
+                ){
+                    Column{
+                        Text(
+                            text="Price",
+                            style=MaterialTheme.typography.bodySmall,
+                            color=grayText
+                        )
+                        Text(
+                            text="₹${item.price}",
+                            style=MaterialTheme.typography.titleLarge,
+                            fontWeight=FontWeight.ExtraBold,
+                            color=darkText
+                        )
+                    }
+
+                    when{
+                        isItemDisabled -> {
+                            Box(
+                                modifier=Modifier
+                                    .background(
+                                        color=chipBg,
+                                        shape=RoundedCornerShape(14.dp)
+                                    )
+                                    .padding(horizontal = 14.dp, vertical = 10.dp)
+                            ){
+                                Text(
+                                    text=if(!item.inStock){
+                                        "OUT OF STOCK"
+                                    }else if(isCartLocked){
+                                        "LOCKED"
+                                    }else if(!isCurrentRestaurantActive){
+                                        "OLD MENU"
+                                    }else{
+                                        "DISABLED"
+                                    },
+                                    color=grayText,
+                                    fontWeight=FontWeight.Bold,
+                                    style=MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+
+                        cartItem == null -> {
+                            OutlinedButton(
+                                onClick=onAddClick,
+                                shape=RoundedCornerShape(16.dp)
+                            ){
+                                Text(
+                                    text=if(item.hasVariants || item.hasAddons) "SELECT" else "ADD",
+                                    color=orange,
+                                    fontWeight=FontWeight.ExtraBold
+                                )
+                            }
+                        }
+
+                        else -> {
+                            Row(
+                                verticalAlignment=Alignment.CenterVertically,
+                                horizontalArrangement=Arrangement.spacedBy(8.dp)
+                            ){
+                                OutlinedButton(
+                                    onClick=onDecreaseClick,
+                                    shape=RoundedCornerShape(14.dp)
+                                ){
+                                    Text(
+                                        text="-",
+                                        color=orange,
+                                        fontWeight=FontWeight.Bold
+                                    )
+                                }
+
+                                Text(
+                                    text="${cartItem.quantity}",
+                                    fontWeight=FontWeight.ExtraBold,
+                                    color=darkText
+                                )
+
+                                OutlinedButton(
+                                    onClick=onIncreaseClick,
+                                    shape=RoundedCornerShape(14.dp)
+                                ){
+                                    Text(
+                                        text="+",
+                                        color=orange,
+                                        fontWeight=FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+}
+@Composable
+fun VegChip(
+    isVeg: Boolean,
+    green: Color,
+    red: Color
+) {
+    val chipColor = if (isVeg) green else red
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .shadow(
+                elevation = 1.dp,
+                shape = RoundedCornerShape(50.dp),
+                clip = false
+            )
+            .background(
+                color = Color.White.copy(alpha = 0.96f),
+                shape = RoundedCornerShape(50.dp)
+            )
+            .border(
+                width = 1.dp,
+                color = Color.White.copy(alpha = 0.7f),
+                shape = RoundedCornerShape(50.dp)
+            )
+            .padding(horizontal = 10.dp, vertical = 6.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .background(chipColor, CircleShape)
+        )
+
+        Spacer(modifier = Modifier.width(6.dp))
+
+        Text(
+            text = if (isVeg) "VEG" else "NON-VEG",
+            color = chipColor,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.ExtraBold
+        )
+    }
+}
+@Composable
+fun MiniTag(
+    text: String,
+    color: Color
+) {
+    Box(
+        modifier = Modifier
+            .shadow(
+                elevation = 1.dp,
+                shape = RoundedCornerShape(50.dp),
+                clip = false
+            )
+            .background(
+                color = Color.White.copy(alpha = 0.96f),
+                shape = RoundedCornerShape(50.dp)
+            )
+            .border(
+                width = 1.dp,
+                color = Color.White.copy(alpha = 0.75f),
+                shape = RoundedCornerShape(50.dp)
+            )
+            .padding(horizontal = 10.dp, vertical = 6.dp)
+    ) {
+        Text(
+            text = text,
+            color = color,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.ExtraBold
+        )
     }
 }
