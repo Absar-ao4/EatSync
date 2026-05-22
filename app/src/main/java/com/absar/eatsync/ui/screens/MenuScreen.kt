@@ -82,6 +82,7 @@ fun MenuScreen(
 
     val isCurrentRestaurantActive=selectedRestaurantId==restaurantId
     val isMenuDisabled=isCartLocked || !isCurrentRestaurantActive
+
     val userCartCount=cartItems
         .filter { it.addedByName==currentUserName }
         .sumOf { it.quantity }
@@ -104,7 +105,6 @@ fun MenuScreen(
                     )
                 )
         )
-
         Box(
             modifier=Modifier
                 .align(Alignment.TopEnd)
@@ -112,14 +112,12 @@ fun MenuScreen(
                 .background(Color(0x33FFFFFF), CircleShape)
                 .size(130.dp)
         )
-
         Column(
             modifier=Modifier
                 .fillMaxSize()
                 .padding(horizontal = 20.dp)
         ){
             Spacer(modifier=Modifier.height(28.dp))
-
             Row(
                 modifier=Modifier.fillMaxWidth(),
                 horizontalArrangement=Arrangement.SpaceBetween,
@@ -134,7 +132,6 @@ fun MenuScreen(
                         fontWeight=FontWeight.ExtraBold,
                         color=darkText
                     )
-
                     Text(
                         text=if(isLoading){
                             "Fetching menu from EatSync backend..."
@@ -146,7 +143,6 @@ fun MenuScreen(
                         modifier=Modifier.padding(top = 4.dp)
                     )
                 }
-
                 Surface(
                     shape=RoundedCornerShape(18.dp),
                     color=Color.White,
@@ -162,7 +158,6 @@ fun MenuScreen(
                             color=grayText,
                             fontWeight=FontWeight.Bold
                         )
-
                         Text(
                             text=sessionCode,
                             color=orange,
@@ -171,9 +166,7 @@ fun MenuScreen(
                     }
                 }
             }
-
             Spacer(modifier=Modifier.height(18.dp))
-
             Card(
                 modifier=Modifier
                     .fillMaxWidth()
@@ -203,7 +196,6 @@ fun MenuScreen(
                                 fontWeight=FontWeight.Bold,
                                 color=darkText
                             )
-
                             Text(
                                 text="Add simple items directly. Customize items with variants or add-ons before adding.",
                                 style=MaterialTheme.typography.bodySmall,
@@ -211,7 +203,6 @@ fun MenuScreen(
                                 modifier=Modifier.padding(top = 4.dp)
                             )
                         }
-
                         Box(
                             modifier=Modifier
                                 .background(lightOrange, RoundedCornerShape(50.dp))
@@ -225,9 +216,7 @@ fun MenuScreen(
                             )
                         }
                     }
-
                     Spacer(modifier=Modifier.height(14.dp))
-
                     Row(
                         modifier=Modifier.fillMaxWidth(),
                         horizontalArrangement=Arrangement.spacedBy(10.dp)
@@ -236,7 +225,6 @@ fun MenuScreen(
                             text=if(isCartLocked) "Cart locked" else "Cart open",
                             color=if(isCartLocked) orange else green
                         )
-
                         MenuInfoChip(
                             text="$userCartCount in your cart",
                             color=orange
@@ -244,9 +232,7 @@ fun MenuScreen(
                     }
                 }
             }
-
             Spacer(modifier=Modifier.height(14.dp))
-
             if(!isCurrentRestaurantActive){
                 StatusCard(
                     title="Restaurant changed",
@@ -255,7 +241,6 @@ fun MenuScreen(
                     darkText=darkText,
                     grayText=grayText
                 )
-
                 Spacer(modifier=Modifier.height(14.dp))
             }
             else if(isCartLocked){
@@ -266,10 +251,8 @@ fun MenuScreen(
                     darkText=darkText,
                     grayText=grayText
                 )
-
                 Spacer(modifier=Modifier.height(14.dp))
             }
-
             if(isLoading){
                 Card(
                     modifier=Modifier.fillMaxWidth(),
@@ -287,7 +270,6 @@ fun MenuScreen(
                         CircularProgressIndicator(
                             color=orange
                         )
-
                         Text(
                             text="Loading menu items...",
                             color=grayText,
@@ -295,7 +277,6 @@ fun MenuScreen(
                         )
                     }
                 }
-
                 Spacer(modifier=Modifier.weight(1f))
             }
             else{
@@ -303,18 +284,31 @@ fun MenuScreen(
                     modifier=Modifier.weight(1f)
                 ){
                     items(menuItems){item->
-                        val itemId="${item.id}_$currentUserName"
-
-                        val cartItem=cartItems.firstOrNull{
-                            it.id==itemId&&it.addedByName==currentUserName
-                        }
-
-                        val isItemDisabled=isMenuDisabled || !item.inStock
+                        val exactItemId="${item.id}_$currentUserName"
                         val needsCustomization=item.hasVariants || item.hasAddons
-
+                        val customizedItemCount=cartItems
+                            .filter { cartItem ->
+                                cartItem.addedByName==currentUserName &&
+                                        (
+                                                cartItem.id==exactItemId ||
+                                                        cartItem.id.startsWith("${item.id}_custom_")
+                                                )
+                            }
+                            .sumOf { cartItem ->
+                                cartItem.quantity
+                            }
+                        val cartItem=if(needsCustomization){
+                            null
+                        }else{
+                            cartItems.firstOrNull{
+                                it.id==exactItemId&&it.addedByName==currentUserName
+                            }
+                        }
+                        val isItemDisabled=isMenuDisabled || !item.inStock
                         MenuItemCard(
                             item=item,
                             cartItem=cartItem,
+                            customizedItemCount=customizedItemCount,
                             isItemDisabled=isItemDisabled,
                             isCartLocked=isCartLocked,
                             isCurrentRestaurantActive=isCurrentRestaurantActive,
@@ -341,14 +335,11 @@ fun MenuScreen(
                                 }
                             }
                         )
-
                         Spacer(modifier=Modifier.height(14.dp))
                     }
                 }
             }
-
             Spacer(modifier=Modifier.height(10.dp))
-
             Button(
                 onClick=onViewCartClick,
                 modifier=Modifier
@@ -368,9 +359,7 @@ fun MenuScreen(
                     fontWeight=FontWeight.Bold
                 )
             }
-
             Spacer(modifier=Modifier.height(10.dp))
-
             OutlinedButton(
                 onClick=onBackClick,
                 modifier=Modifier
@@ -391,7 +380,6 @@ fun MenuScreen(
                     fontWeight=FontWeight.Bold
                 )
             }
-
             Spacer(modifier=Modifier.height(14.dp))
         }
     }
@@ -445,7 +433,6 @@ fun StatusCard(
                 fontWeight=FontWeight.Bold,
                 color=accentColor
             )
-
             Text(
                 text=message,
                 color=grayText,
@@ -459,6 +446,7 @@ fun StatusCard(
 fun MenuItemCard(
     item:FoodMenuItem,
     cartItem:CartItem?,
+    customizedItemCount:Int,
     isItemDisabled:Boolean,
     isCartLocked:Boolean,
     isCurrentRestaurantActive:Boolean,
@@ -487,7 +475,6 @@ fun MenuItemCard(
         Column(
             modifier=Modifier.fillMaxWidth()
         ){
-
             Box(
                 modifier=Modifier
                     .fillMaxWidth()
@@ -514,7 +501,19 @@ fun MenuItemCard(
                         )
                     }
                 }
-
+                Box(
+                    modifier=Modifier
+                        .fillMaxWidth()
+                        .height(70.dp)
+                        .background(
+                            Brush.verticalGradient(
+                                colors=listOf(
+                                    Color.Black.copy(alpha = 0.28f),
+                                    Color.Transparent
+                                )
+                            )
+                        )
+                )
                 Row(
                     modifier=Modifier
                         .align(Alignment.TopStart)
@@ -526,7 +525,6 @@ fun MenuItemCard(
                         green=green,
                         red=red
                     )
-
                     if(!item.inStock){
                         MiniTag(
                             text="Out of stock",
@@ -534,7 +532,6 @@ fun MenuItemCard(
                         )
                     }
                 }
-
                 if(item.hasVariants || item.hasAddons){
                     Box(
                         modifier=Modifier
@@ -542,13 +539,16 @@ fun MenuItemCard(
                             .padding(12.dp)
                     ){
                         MiniTag(
-                            text="Customizable",
+                            text=if(customizedItemCount>0){
+                                "Added $customizedItemCount"
+                            }else{
+                                "Customizable"
+                            },
                             color=orange
                         )
                     }
                 }
             }
-
             Column(
                 modifier=Modifier.padding(16.dp)
             ){
@@ -558,7 +558,6 @@ fun MenuItemCard(
                     fontWeight=FontWeight.ExtraBold,
                     color=darkText
                 )
-
                 if(item.description.isNotBlank()){
                     Text(
                         text=item.description,
@@ -568,9 +567,7 @@ fun MenuItemCard(
                         maxLines=2
                     )
                 }
-
                 Spacer(modifier=Modifier.height(10.dp))
-
                 Row(
                     horizontalArrangement=Arrangement.spacedBy(8.dp)
                 ){
@@ -580,14 +577,12 @@ fun MenuItemCard(
                             color=orange
                         )
                     }
-
                     if(item.hasAddons){
                         MiniTag(
                             text="Add-ons",
                             color=orange
                         )
                     }
-
                     if(item.inStock){
                         Box(
                             modifier=Modifier
@@ -606,9 +601,7 @@ fun MenuItemCard(
                         }
                     }
                 }
-
                 Spacer(modifier=Modifier.height(14.dp))
-
                 Row(
                     modifier=Modifier.fillMaxWidth(),
                     horizontalArrangement=Arrangement.SpaceBetween,
@@ -627,7 +620,6 @@ fun MenuItemCard(
                             color=darkText
                         )
                     }
-
                     when{
                         isItemDisabled -> {
                             Box(
@@ -658,10 +650,25 @@ fun MenuItemCard(
                         cartItem == null -> {
                             OutlinedButton(
                                 onClick=onAddClick,
-                                shape=RoundedCornerShape(16.dp)
+                                shape=RoundedCornerShape(16.dp),
+                                colors=ButtonDefaults.outlinedButtonColors(
+                                    containerColor=if(customizedItemCount>0){
+                                        Color(0xFFFFF1E3)
+                                    }else{
+                                        Color.White
+                                    }
+                                )
                             ){
                                 Text(
-                                    text=if(item.hasVariants || item.hasAddons) "SELECT" else "ADD",
+                                    text=if(item.hasVariants || item.hasAddons){
+                                        if(customizedItemCount>0){
+                                            "SELECT +$customizedItemCount"
+                                        }else{
+                                            "SELECT"
+                                        }
+                                    }else{
+                                        "ADD"
+                                    },
                                     color=orange,
                                     fontWeight=FontWeight.ExtraBold
                                 )
@@ -683,13 +690,11 @@ fun MenuItemCard(
                                         fontWeight=FontWeight.Bold
                                     )
                                 }
-
                                 Text(
                                     text="${cartItem.quantity}",
                                     fontWeight=FontWeight.ExtraBold,
                                     color=darkText
                                 )
-
                                 OutlinedButton(
                                     onClick=onIncreaseClick,
                                     shape=RoundedCornerShape(14.dp)
@@ -708,6 +713,7 @@ fun MenuItemCard(
         }
     }
 }
+
 @Composable
 fun VegChip(
     isVeg: Boolean,
@@ -740,9 +746,7 @@ fun VegChip(
                 .size(8.dp)
                 .background(chipColor, CircleShape)
         )
-
         Spacer(modifier = Modifier.width(6.dp))
-
         Text(
             text = if (isVeg) "VEG" else "NON-VEG",
             color = chipColor,
@@ -751,6 +755,7 @@ fun VegChip(
         )
     }
 }
+
 @Composable
 fun MiniTag(
     text: String,

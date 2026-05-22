@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -45,36 +46,52 @@ fun JoinSessionScreen(
     val isJoinEnabled=userName.trim().isNotEmpty() && sessionCode.length == 6
 
     val orange=Color(0xFFFC8019)
+    val deepOrange=Color(0xFFE95D00)
     val background=Color(0xFFFFF7ED)
     val darkText=Color(0xFF1C1C1C)
     val grayText=Color(0xFF686B78)
-    val softOrange=Color(0xFFFFE4C7)
     val green=Color(0xFF48C479)
+    val softOrange=Color(0xFFFFE8D2)
 
     Box(
         modifier=Modifier
             .fillMaxSize()
             .background(background)
-            .padding(20.dp)
     ){
         Box(
             modifier=Modifier
-                .align(Alignment.TopEnd)
-                .background(softOrange, CircleShape)
-                .padding(64.dp)
+                .fillMaxWidth()
+                .height(260.dp)
+                .background(
+                    Brush.verticalGradient(
+                        colors=listOf(
+                            Color(0xFFFFD2A1),
+                            background
+                        )
+                    )
+                )
         )
-
+        Box(
+            modifier=Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 42.dp, end = 22.dp)
+                .background(Color(0x33FFFFFF), CircleShape)
+                .padding(70.dp)
+        )
         Column(
-            modifier=Modifier.fillMaxSize()
+            modifier=Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp)
         ){
+            Spacer(modifier=Modifier.height(30.dp))
             Row(
-                modifier=Modifier
-                    .fillMaxWidth()
-                    .padding(top = 18.dp),
+                modifier=Modifier.fillMaxWidth(),
                 horizontalArrangement=Arrangement.SpaceBetween,
-                verticalAlignment=Alignment.CenterVertically
+                verticalAlignment=Alignment.Top
             ){
-                Column{
+                Column(
+                    modifier=Modifier.weight(1f)
+                ){
                     Text(
                         text="Join order",
                         style=MaterialTheme.typography.headlineMedium,
@@ -89,9 +106,9 @@ fun JoinSessionScreen(
                         modifier=Modifier.padding(top = 4.dp)
                     )
                 }
-
                 Box(
                     modifier=Modifier
+                        .shadow(4.dp, RoundedCornerShape(18.dp))
                         .background(Color.White, RoundedCornerShape(18.dp))
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                 ){
@@ -102,59 +119,12 @@ fun JoinSessionScreen(
                     )
                 }
             }
-
-            Spacer(modifier=Modifier.height(22.dp))
-
-            Card(
-                modifier=Modifier.fillMaxWidth(),
-                shape=RoundedCornerShape(22.dp),
-                colors=CardDefaults.cardColors(
-                    containerColor=Color.White
-                )
-            ){
-                Column(
-                    modifier=Modifier.padding(18.dp)
-                ){
-                    Text(
-                        text="What happens next?",
-                        style=MaterialTheme.typography.titleMedium,
-                        fontWeight=FontWeight.Bold,
-                        color=darkText
-                    )
-
-                    Spacer(modifier=Modifier.height(14.dp))
-
-                    JoinInfoRow(
-                        title="Live waiting room",
-                        subtitle="See everyone joining the session in real time."
-                    )
-
-                    Spacer(modifier=Modifier.height(10.dp))
-
-                    JoinInfoRow(
-                        title="Shared cart",
-                        subtitle="Add your items while others add theirs."
-                    )
-
-                    Spacer(modifier=Modifier.height(10.dp))
-
-                    JoinInfoRow(
-                        title="Bill split",
-                        subtitle="Pay only for your items plus shared charges."
-                    )
-                }
-            }
-
-            Spacer(modifier=Modifier.height(16.dp))
-
+            Spacer(modifier=Modifier.height(26.dp))
             Card(
                 modifier=Modifier
                     .fillMaxWidth()
-                    .shadow(
-                        elevation=7.dp,
-                        shape=RoundedCornerShape(24.dp)
-                    ),
-                shape=RoundedCornerShape(24.dp),
+                    .shadow(8.dp, RoundedCornerShape(28.dp)),
+                shape=RoundedCornerShape(28.dp),
                 colors=CardDefaults.cardColors(
                     containerColor=Color.White
                 )
@@ -162,20 +132,32 @@ fun JoinSessionScreen(
                 Column(
                     modifier=Modifier.padding(20.dp)
                 ){
+                    Box(
+                        modifier=Modifier
+                            .background(softOrange, RoundedCornerShape(50.dp))
+                            .padding(horizontal = 12.dp, vertical = 7.dp)
+                    ){
+                        Text(
+                            text="Join your friend’s cart",
+                            color=deepOrange,
+                            style=MaterialTheme.typography.bodySmall,
+                            fontWeight=FontWeight.ExtraBold
+                        )
+                    }
+                    Spacer(modifier=Modifier.height(16.dp))
                     Text(
-                        text="Your details",
-                        style=MaterialTheme.typography.titleMedium,
-                        fontWeight=FontWeight.Bold,
+                        text="Add your details",
+                        style=MaterialTheme.typography.titleLarge,
+                        fontWeight=FontWeight.ExtraBold,
                         color=darkText
                     )
-
                     Text(
-                        text="This name will appear in the waiting room, cart and bill split.",
+                        text="Your name will appear in the waiting room, shared cart, and bill split.",
                         style=MaterialTheme.typography.bodyMedium,
                         color=grayText,
-                        modifier=Modifier.padding(top = 6.dp,bottom = 16.dp)
+                        modifier=Modifier.padding(top = 7.dp)
                     )
-
+                    Spacer(modifier=Modifier.height(18.dp))
                     OutlinedTextField(
                         value=userName,
                         onValueChange={userName=it},
@@ -183,9 +165,7 @@ fun JoinSessionScreen(
                         singleLine=true,
                         modifier=Modifier.fillMaxWidth()
                     )
-
                     Spacer(modifier=Modifier.height(12.dp))
-
                     OutlinedTextField(
                         value=sessionCode,
                         onValueChange={ value ->
@@ -199,15 +179,26 @@ fun JoinSessionScreen(
                         modifier=Modifier.fillMaxWidth()
                     )
 
-                    Text(
-                        text="${sessionCode.length}/6 characters",
-                        style=MaterialTheme.typography.bodySmall,
-                        color=grayText,
-                        modifier=Modifier.padding(top = 6.dp)
-                    )
-
+                    Row(
+                        modifier=Modifier
+                            .fillMaxWidth()
+                            .padding(top = 7.dp),
+                        horizontalArrangement=Arrangement.SpaceBetween,
+                        verticalAlignment=Alignment.CenterVertically
+                    ){
+                        Text(
+                            text="${sessionCode.length}/6 characters",
+                            style=MaterialTheme.typography.bodySmall,
+                            color=grayText
+                        )
+                        Text(
+                            text=if(isJoinEnabled) "Ready to join" else "Code required",
+                            style=MaterialTheme.typography.bodySmall,
+                            color=if(isJoinEnabled) green else grayText,
+                            fontWeight=FontWeight.Bold
+                        )
+                    }
                     Spacer(modifier=Modifier.height(18.dp))
-
                     Button(
                         onClick={
                             joinedCode=sessionCode
@@ -224,21 +215,22 @@ fun JoinSessionScreen(
                     ){
                         Text(
                             text="Join Session",
-                            fontWeight=FontWeight.Bold
+                            fontWeight=FontWeight.ExtraBold
                         )
                     }
                 }
             }
-
-
             if(joinedCode!=null){
                 Spacer(modifier=Modifier.height(16.dp))
 
                 Card(
                     modifier=Modifier.fillMaxWidth(),
-                    shape=RoundedCornerShape(22.dp),
+                    shape=RoundedCornerShape(24.dp),
                     colors=CardDefaults.cardColors(
                         containerColor=Color.White
+                    ),
+                    elevation=CardDefaults.cardElevation(
+                        defaultElevation=4.dp
                     )
                 ){
                     Row(
@@ -248,14 +240,15 @@ fun JoinSessionScreen(
                         horizontalArrangement=Arrangement.SpaceBetween,
                         verticalAlignment=Alignment.CenterVertically
                     ){
-                        Column{
+                        Column(
+                            modifier=Modifier.weight(1f)
+                        ){
                             Text(
-                                text="Joined Session",
+                                text="Joined session",
                                 style=MaterialTheme.typography.titleMedium,
-                                fontWeight=FontWeight.Bold,
+                                fontWeight=FontWeight.ExtraBold,
                                 color=darkText
                             )
-
                             Text(
                                 text="Waiting for host updates",
                                 style=MaterialTheme.typography.bodySmall,
@@ -263,25 +256,55 @@ fun JoinSessionScreen(
                                 modifier=Modifier.padding(top = 3.dp)
                             )
                         }
-
-                        Text(
-                            text=joinedCode ?: "",
-                            style=MaterialTheme.typography.titleLarge,
-                            fontWeight=FontWeight.ExtraBold,
-                            color=green
-                        )
+                        Box(
+                            modifier=Modifier
+                                .background(Color(0xFFE9F8EF), RoundedCornerShape(16.dp))
+                                .padding(horizontal = 13.dp, vertical = 9.dp)
+                        ){
+                            Text(
+                                text=joinedCode ?: "",
+                                style=MaterialTheme.typography.titleMedium,
+                                fontWeight=FontWeight.ExtraBold,
+                                color=green
+                            )
+                        }
                     }
                 }
             }
-
             Spacer(modifier=Modifier.weight(1f))
-
+            Card(
+                modifier=Modifier.fillMaxWidth(),
+                shape=RoundedCornerShape(24.dp),
+                colors=CardDefaults.cardColors(
+                    containerColor=Color.White
+                )
+            ){
+                Column(
+                    modifier=Modifier.padding(16.dp)
+                ){
+                    JoinMiniInfoRow(
+                        text="You can add your own food items after joining",
+                        orange=orange,
+                        darkText=darkText
+                    )
+                    Spacer(modifier=Modifier.height(8.dp))
+                    JoinMiniInfoRow(
+                        text="Your bill is calculated separately from others",
+                        orange=orange,
+                        darkText=darkText
+                    )
+                }
+            }
+            Spacer(modifier=Modifier.height(12.dp))
             OutlinedButton(
-                onClick= onBackClick,
+                onClick=onBackClick,
                 modifier=Modifier
                     .fillMaxWidth()
                     .height(54.dp),
-                shape=RoundedCornerShape(16.dp)
+                shape=RoundedCornerShape(16.dp),
+                colors=ButtonDefaults.outlinedButtonColors(
+                    containerColor=Color.White
+                )
             ){
                 Text(
                     text="Back",
@@ -289,19 +312,17 @@ fun JoinSessionScreen(
                     fontWeight=FontWeight.Bold
                 )
             }
+            Spacer(modifier=Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
-fun JoinInfoRow(
-    title:String,
-    subtitle:String
+fun JoinMiniInfoRow(
+    text:String,
+    orange:Color,
+    darkText:Color
 ){
-    val darkText=Color(0xFF1C1C1C)
-    val grayText=Color(0xFF686B78)
-    val orange=Color(0xFFFC8019)
-
     Row(
         modifier=Modifier.fillMaxWidth(),
         verticalAlignment=Alignment.CenterVertically
@@ -309,31 +330,20 @@ fun JoinInfoRow(
         Box(
             modifier=Modifier
                 .background(Color(0xFFFFE8D2), CircleShape)
-                .padding(7.dp)
+                .padding(horizontal = 8.dp, vertical = 4.dp)
         ){
             Text(
-                text="•",
+                text="✓",
                 color=orange,
                 fontWeight=FontWeight.ExtraBold
             )
         }
-
-        Column(
-            modifier=Modifier.padding(start = 12.dp)
-        ){
-            Text(
-                text=title,
-                color=darkText,
-                fontWeight=FontWeight.Bold,
-                style=MaterialTheme.typography.bodyMedium
-            )
-
-            Text(
-                text=subtitle,
-                color=grayText,
-                style=MaterialTheme.typography.bodySmall,
-                modifier=Modifier.padding(top = 2.dp)
-            )
-        }
+        Text(
+            text=text,
+            color=darkText,
+            style=MaterialTheme.typography.bodySmall,
+            fontWeight=FontWeight.SemiBold,
+            modifier=Modifier.padding(start = 10.dp)
+        )
     }
 }

@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -43,51 +44,65 @@ fun SharedCartScreen(
     onBackClick:()->Unit
 ) {
     val itemTotal=cartItems.sumOf{it.price * it.quantity}
-    val deliveryFee=
-        if(cartItems.isEmpty()){0}
-        else{40}
-    val platformFee=
-        if(cartItems.isEmpty()){0}
-        else{10}
+    val deliveryFee=if(cartItems.isEmpty()) 0 else 40
+    val platformFee=if(cartItems.isEmpty()) 0 else 10
     val grandTotal=itemTotal+deliveryFee+platformFee
 
     val orange=Color(0xFFFC8019)
+    val deepOrange=Color(0xFFE95D00)
     val background=Color(0xFFFFF7ED)
     val darkText=Color(0xFF1C1C1C)
     val grayText=Color(0xFF686B78)
     val green=Color(0xFF48C479)
+    val softOrange=Color(0xFFFFE8D2)
+
+    val totalQuantity=cartItems.sumOf { it.quantity }
 
     Box(
         modifier=Modifier
             .fillMaxSize()
             .background(background)
-            .padding(20.dp)
     ){
         Box(
             modifier=Modifier
-                .align(Alignment.TopEnd)
-                .background(Color(0xFFFFE4C7), CircleShape)
-                .padding(66.dp)
+                .fillMaxWidth()
+                .height(220.dp)
+                .background(
+                    Brush.verticalGradient(
+                        colors=listOf(
+                            Color(0xFFFFD2A1),
+                            background
+                        )
+                    )
+                )
         )
-
+        Box(
+            modifier=Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 28.dp, end = 22.dp)
+                .background(Color(0x33FFFFFF), CircleShape)
+                .padding(62.dp)
+        )
         Column(
-            modifier=Modifier.fillMaxSize()
+            modifier=Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp)
         ){
+            Spacer(modifier=Modifier.height(28.dp))
             Row(
-                modifier=Modifier
-                    .fillMaxWidth()
-                    .padding(top = 18.dp),
+                modifier=Modifier.fillMaxWidth(),
                 horizontalArrangement=Arrangement.SpaceBetween,
-                verticalAlignment=Alignment.CenterVertically
+                verticalAlignment=Alignment.Top
             ){
-                Column{
+                Column(
+                    modifier=Modifier.weight(1f)
+                ){
                     Text(
                         text="Shared cart",
                         style=MaterialTheme.typography.headlineMedium,
                         fontWeight=FontWeight.ExtraBold,
                         color=darkText
                     )
-
                     Text(
                         text="Session: $sessionCode",
                         style=MaterialTheme.typography.bodyMedium,
@@ -95,84 +110,69 @@ fun SharedCartScreen(
                         modifier=Modifier.padding(top = 4.dp)
                     )
                 }
-
                 Box(
                     modifier=Modifier
-                        .background(
-                            if(isCartLocked) Color(0xFFFFE8D2) else Color(0xFFE9F8EF),
-                            RoundedCornerShape(50.dp)
-                        )
+                        .shadow(4.dp, RoundedCornerShape(18.dp))
+                        .background(Color.White, RoundedCornerShape(18.dp))
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                 ){
-                    Text(
-                        text=if(isCartLocked) "LOCKED"
-                        else "${cartItems.size} ITEMS",
-                        color=if(isCartLocked) orange
-                        else green,
-                        fontWeight=FontWeight.ExtraBold,
-                        style=MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-
-            Spacer(modifier=Modifier.height(16.dp))
-
-            if(isCartLocked){
-                Card(
-                    modifier=Modifier.fillMaxWidth(),
-                    shape=RoundedCornerShape(22.dp),
-                    colors=CardDefaults.cardColors(
-                        containerColor=Color.White
-                    )
-                ){
-                    Text(
-                        text="Cart is locked. Items can no longer be edited.",
-                        modifier=Modifier.padding(16.dp),
-                        fontWeight=FontWeight.Bold,
-                        color=darkText
-                    )
-                }
-
-                Spacer(modifier=Modifier.height(14.dp))
-            }
-
-            if(cartItems.isEmpty()){
-                Card(
-                    modifier=Modifier.fillMaxWidth(),
-                    shape=RoundedCornerShape(22.dp),
-                    colors=CardDefaults.cardColors(
-                        containerColor=Color.White
-                    ),
-                    elevation=CardDefaults.cardElevation(
-                        defaultElevation=4.dp
-                    )
-                ){
                     Column(
-                        modifier=Modifier.padding(20.dp),
                         horizontalAlignment=Alignment.CenterHorizontally
                     ){
                         Text(
-                            text="Your cart is empty",
-                            style=MaterialTheme.typography.titleMedium,
-                            fontWeight=FontWeight.Bold,
-                            color=darkText
-                        )
-
-                        Text(
-                            text="Go back to the menu and add some dishes.",
-                            style=MaterialTheme.typography.bodyMedium,
+                            text=if(isCartLocked) "STATUS" else "ITEMS",
+                            style=MaterialTheme.typography.labelSmall,
                             color=grayText,
-                            modifier=Modifier.padding(top = 6.dp)
+                            fontWeight=FontWeight.Bold
+                        )
+                        Text(
+                            text=if(isCartLocked) "LOCKED" else "$totalQuantity",
+                            color=if(isCartLocked) orange else green,
+                            fontWeight=FontWeight.ExtraBold
                         )
                     }
                 }
-
-                Spacer(modifier=Modifier.weight(1f))
             }
-            else{
-                LazyColumn(
-                    modifier=Modifier.weight(1f)
-                ){
+            Spacer(modifier=Modifier.height(18.dp))
+            LazyColumn(
+                modifier=Modifier.weight(1f)
+            ){
+                item{
+                    CartTopSummaryCard(
+                        cartItems=cartItems,
+                        totalQuantity=totalQuantity,
+                        itemTotal=itemTotal,
+                        isCartLocked=isCartLocked,
+                        orange=orange,
+                        deepOrange=deepOrange,
+                        darkText=darkText,
+                        grayText=grayText,
+                        green=green,
+                        softOrange=softOrange
+                    )
+                    Spacer(modifier=Modifier.height(12.dp))
+                }
+                if(isCartLocked){
+                    item{
+                        CartStatusCard(
+                            title="Cart is locked",
+                            message="Items can no longer be edited. Continue to bill split or checkout.",
+                            accentColor=orange,
+                            grayText=grayText
+                        )
+                        Spacer(modifier=Modifier.height(12.dp))
+                    }
+                }
+                if(cartItems.isEmpty()){
+                    item{
+                        EmptyCartCard(
+                            orange=orange,
+                            darkText=darkText,
+                            grayText=grayText
+                        )
+                        Spacer(modifier=Modifier.height(12.dp))
+                    }
+                }else{
                     items(cartItems){item->
                         CartItemCard(
                             item=item,
@@ -188,76 +188,21 @@ fun SharedCartScreen(
                                 onRemoveItem(item.id)
                             }
                         )
-
                         Spacer(modifier=Modifier.height(12.dp))
                     }
                 }
             }
-
-            Spacer(modifier=Modifier.height(12.dp))
-
-            Card(
-                modifier=Modifier
-                    .fillMaxWidth()
-                    .shadow(
-                        elevation=7.dp,
-                        shape=RoundedCornerShape(24.dp)
-                    ),
-                shape=RoundedCornerShape(24.dp),
-                colors=CardDefaults.cardColors(
-                    containerColor=Color.White
-                )
-            ){
-                Column(
-                    modifier=Modifier.padding(18.dp)
-                ){
-                    Row(
-                        modifier=Modifier.fillMaxWidth(),
-                        horizontalArrangement=Arrangement.SpaceBetween,
-                        verticalAlignment=Alignment.CenterVertically
-                    ){
-                        Column{
-                            Text(
-                                text="Bill Summary",
-                                style=MaterialTheme.typography.titleMedium,
-                                fontWeight=FontWeight.Bold,
-                                color=darkText
-                            )
-
-                            Text(
-                                text="Before personal split",
-                                style=MaterialTheme.typography.bodySmall,
-                                color=grayText,
-                                modifier=Modifier.padding(top = 3.dp)
-                            )
-                        }
-
-                        Text(
-                            text="₹$grandTotal",
-                            style=MaterialTheme.typography.titleLarge,
-                            fontWeight=FontWeight.ExtraBold,
-                            color=orange
-                        )
-                    }
-
-                    Spacer(modifier=Modifier.height(14.dp))
-
-                    BillRow(label="Item Total",amount=itemTotal)
-                    BillRow(label="Delivery Fee",amount=deliveryFee)
-                    BillRow(label="Platform Fee",amount=platformFee)
-
-                    Spacer(modifier=Modifier.height(10.dp))
-
-                    BillRow(
-                        label="Grand Total",
-                        amount=grandTotal,
-                        isBold=true
-                    )
-                }
-            }
-
+            Spacer(modifier=Modifier.height(10.dp))
+            BillSummaryCard(
+                itemTotal=itemTotal,
+                deliveryFee=deliveryFee,
+                platformFee=platformFee,
+                grandTotal=grandTotal,
+                orange=orange,
+                darkText=darkText,
+                grayText=grayText
+            )
             Spacer(modifier=Modifier.height(14.dp))
-
             Button(
                 onClick=onContinueToBillSplitClick,
                 enabled=cartItems.isNotEmpty(),
@@ -274,20 +219,228 @@ fun SharedCartScreen(
                     fontWeight=FontWeight.Bold
                 )
             }
-
             Spacer(modifier=Modifier.height(10.dp))
-
             OutlinedButton(
                 onClick=onBackClick,
                 modifier=Modifier
                     .fillMaxWidth()
-                    .height(54.dp),
-                shape=RoundedCornerShape(16.dp)
+                    .height(54.dp), shape=RoundedCornerShape(16.dp),
+                colors=ButtonDefaults.outlinedButtonColors(
+                    containerColor=Color.White
+                )
             ){
                 Text(
                     text="Back",
                     color=orange,
                     fontWeight=FontWeight.Bold
+                )
+            }
+            Spacer(modifier=Modifier.height(14.dp))
+        }
+    }
+}
+
+@Composable
+fun CartTopSummaryCard(
+    cartItems:List<CartItem>,
+    totalQuantity:Int,
+    itemTotal:Int,
+    isCartLocked:Boolean,
+    orange:Color,
+    deepOrange:Color,
+    darkText:Color,
+    grayText:Color,
+    green:Color,
+    softOrange:Color
+){
+    Card(
+        modifier=Modifier
+            .fillMaxWidth()
+            .shadow(7.dp, RoundedCornerShape(26.dp)),
+        shape=RoundedCornerShape(26.dp),
+        colors=CardDefaults.cardColors(
+            containerColor=Color.White
+        )
+    ){
+        Column(
+            modifier=Modifier.padding(18.dp)
+        ){
+            Row(
+                modifier=Modifier.fillMaxWidth(),
+                horizontalArrangement=Arrangement.SpaceBetween,
+                verticalAlignment=Alignment.Top
+            ){
+                Column(
+                    modifier=Modifier.weight(1f)
+                ){
+                    Text(
+                        text="Group cart summary",
+                        style=MaterialTheme.typography.titleMedium,
+                        fontWeight=FontWeight.ExtraBold,
+                        color=darkText
+                    )
+                    Text(
+                        text=if(cartItems.isEmpty()){
+                            "No items added yet"
+                        }else{
+                            "$totalQuantity item(s) from ${cartItems.map { it.addedByName }.distinct().size} participant(s)"
+                        },
+                        style=MaterialTheme.typography.bodySmall,
+                        color=grayText,
+                        modifier=Modifier.padding(top = 4.dp)
+                    )
+                }
+                Box(
+                    modifier=Modifier
+                        .background(
+                            if(isCartLocked) softOrange else Color(0xFFE9F8EF),
+                            RoundedCornerShape(50.dp)
+                        )
+                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                ){
+                    Text(
+                        text=if(isCartLocked) "Locked" else "Live sync",
+                        color=if(isCartLocked) deepOrange else green,
+                        style=MaterialTheme.typography.bodySmall,
+                        fontWeight=FontWeight.Bold
+                    )
+                }
+            }
+            Spacer(modifier=Modifier.height(14.dp))
+            Row(
+                modifier=Modifier.fillMaxWidth(),
+                horizontalArrangement=Arrangement.spacedBy(10.dp)
+            ){
+                CartSummaryPill(
+                    title="Items",
+                    value="$totalQuantity",
+                    modifier=Modifier.weight(1f),
+                    color=orange
+                )
+                CartSummaryPill(
+                    title="Subtotal",
+                    value="₹$itemTotal",
+                    modifier=Modifier.weight(1f),
+                    color=darkText
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CartSummaryPill(
+    title:String,
+    value:String,
+    modifier:Modifier,
+    color:Color
+){
+    Column(
+        modifier=modifier
+            .background(Color(0xFFFFF7ED), RoundedCornerShape(18.dp))
+            .padding(vertical = 10.dp),
+        horizontalAlignment=Alignment.CenterHorizontally
+    ){
+        Text(
+            text=title,
+            color=Color(0xFF686B78),
+            style=MaterialTheme.typography.bodySmall,
+            fontWeight=FontWeight.SemiBold
+        )
+        Text(
+            text=value,
+            color=color,
+            style=MaterialTheme.typography.titleMedium,
+            fontWeight=FontWeight.ExtraBold,
+            modifier=Modifier.padding(top = 2.dp)
+        )
+    }
+}
+
+@Composable
+fun CartStatusCard(
+    title:String,
+    message:String,
+    accentColor:Color,
+    grayText:Color
+){
+    Card(
+        modifier=Modifier.fillMaxWidth(),
+        colors=CardDefaults.cardColors(
+            containerColor=Color.White
+        ),
+        shape=RoundedCornerShape(22.dp),
+        elevation=CardDefaults.cardElevation(
+            defaultElevation=3.dp
+        )
+    ){
+        Column(
+            modifier=Modifier.padding(16.dp)
+        ){
+            Text(
+                text=title,
+                fontWeight=FontWeight.ExtraBold,
+                color=accentColor
+            )
+            Text(
+                text=message,
+                color=grayText,
+                modifier=Modifier.padding(top = 6.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun EmptyCartCard(
+    orange:Color,
+    darkText:Color,
+    grayText:Color
+){
+    Card(
+        modifier=Modifier.fillMaxWidth(),
+        shape=RoundedCornerShape(26.dp),
+        colors=CardDefaults.cardColors(
+            containerColor=Color.White
+        ),
+        elevation=CardDefaults.cardElevation(
+            defaultElevation=5.dp
+        )
+    ){
+        Column(
+            modifier=Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            horizontalAlignment=Alignment.CenterHorizontally
+        ){
+            Text(
+                text="🛒",
+                style=MaterialTheme.typography.displaySmall
+            )
+            Text(
+                text="Your cart is empty",
+                style=MaterialTheme.typography.titleMedium,
+                fontWeight=FontWeight.ExtraBold,
+                color=darkText,
+                modifier=Modifier.padding(top = 8.dp)
+            )
+            Text(
+                text="Go back to the menu and add dishes with your group.",
+                style=MaterialTheme.typography.bodyMedium,
+                color=grayText,
+                modifier=Modifier.padding(top = 6.dp)
+            )
+            Spacer(modifier=Modifier.height(12.dp))
+            Box(
+                modifier=Modifier
+                    .background(Color(0xFFFFE8D2), RoundedCornerShape(50.dp))
+                    .padding(horizontal = 12.dp, vertical = 7.dp)
+            ){
+                Text(
+                    text="Start ordering",
+                    color=orange,
+                    fontWeight=FontWeight.Bold,
+                    style=MaterialTheme.typography.bodySmall
                 )
             }
         }
@@ -306,15 +459,15 @@ fun CartItemCard(
     val orange=Color(0xFFFC8019)
     val darkText=Color(0xFF1C1C1C)
     val grayText=Color(0xFF686B78)
+    val softOrange=Color(0xFFFFE8D2)
 
     Card(
         modifier=Modifier.fillMaxWidth(),
-        shape=RoundedCornerShape(22.dp),
+        shape=RoundedCornerShape(26.dp),
         colors=CardDefaults.cardColors(
             containerColor=Color.White
-        ),
-        elevation=CardDefaults.cardElevation(
-            defaultElevation=3.dp
+        ), elevation=CardDefaults.cardElevation(
+            defaultElevation=4.dp
         )
     ){
         Column(
@@ -331,125 +484,217 @@ fun CartItemCard(
                 ){
                     Box(
                         modifier=Modifier
-                            .background(Color(0xFFFFE8D2), RoundedCornerShape(14.dp))
-                            .padding(horizontal = 10.dp, vertical = 8.dp)
+                            .background(softOrange, RoundedCornerShape(16.dp))
+                            .padding(horizontal = 11.dp, vertical = 9.dp)
                     ){
                         Text(
                             text="ITEM",
                             color=orange,
-                            fontWeight=FontWeight.Bold,
-                            style=MaterialTheme.typography.bodySmall
+                            fontWeight=FontWeight.ExtraBold,
+                            style=MaterialTheme.typography.labelSmall
                         )
                     }
-
                     Column(
-                        modifier=Modifier.padding(start = 12.dp)
+                        modifier=Modifier
+                            .weight(1f)
+                            .padding(start = 12.dp)
                     ){
                         Text(
                             text=item.name,
                             style=MaterialTheme.typography.bodyLarge,
-                            fontWeight=FontWeight.Bold,
+                            fontWeight=FontWeight.ExtraBold,
                             color=darkText
                         )
-
                         if(item.description.isNotBlank()){
-                            Text(
-                                text=item.description,
-                                style=MaterialTheme.typography.bodySmall,
-                                color=orange,
-                                fontWeight=FontWeight.SemiBold,
-                                modifier=Modifier.padding(top = 4.dp)
-                            )
+                            Box(
+                                modifier=Modifier
+                                    .padding(top = 7.dp)
+                                    .background(Color(0xFFFFF7ED), RoundedCornerShape(14.dp))
+                                    .padding(horizontal = 10.dp, vertical = 8.dp)
+                            ){
+                                Text(
+                                    text=item.description,
+                                    style=MaterialTheme.typography.bodySmall,
+                                    color=orange,
+                                    fontWeight=FontWeight.SemiBold
+                                )
+                            }
                         }
-
                         Text(
                             text="Added by ${item.addedByName}",
                             style=MaterialTheme.typography.bodySmall,
                             color=grayText,
-                            modifier=Modifier.padding(top = 5.dp)
-                        )
-
-                        Text(
-                            text="₹${item.price} each",
-                            style=MaterialTheme.typography.bodySmall,
-                            color=grayText,
-                            modifier=Modifier.padding(top = 3.dp)
+                            modifier=Modifier.padding(top = 7.dp)
                         )
                     }
                 }
-
-                Text(
-                    text="₹${item.price * item.quantity}",
-                    style=MaterialTheme.typography.bodyLarge,
-                    fontWeight=FontWeight.ExtraBold,
-                    color=darkText
-                )
+                Column(
+                    horizontalAlignment=Alignment.End
+                ){
+                    Text(
+                        text="₹${item.price * item.quantity}",
+                        style=MaterialTheme.typography.bodyLarge,
+                        fontWeight=FontWeight.ExtraBold,
+                        color=darkText
+                    )
+                    Text(
+                        text="₹${item.price} each",
+                        style=MaterialTheme.typography.bodySmall,
+                        color=grayText,
+                        modifier=Modifier.padding(top = 3.dp)
+                    )
+                }
             }
-
             Spacer(modifier=Modifier.height(14.dp))
-
             if(canEdit){
                 Row(
                     modifier=Modifier.fillMaxWidth(),
                     horizontalArrangement=Arrangement.SpaceBetween,
                     verticalAlignment=Alignment.CenterVertically
                 ){
-                    Row(
-                        verticalAlignment=Alignment.CenterVertically
-                    ){
-                        OutlinedButton(
-                            onClick=onDecreaseClick,
-                            shape=RoundedCornerShape(12.dp)
-                        ){
-                            Text(
-                                text="-",
-                                color=orange
-                            )
-                        }
-
-                        Text(
-                            text="${item.quantity}",
-                            modifier=Modifier.padding(horizontal = 12.dp),
-                            fontWeight=FontWeight.ExtraBold,
-                            color=darkText
-                        )
-
-                        OutlinedButton(
-                            onClick=onIncreaseClick,
-                            shape=RoundedCornerShape(12.dp)
-                        ){
-                            Text(
-                                text="+",
-                                color=orange
-                            )
-                        }
-                    }
-
+                    QuantityStepper(
+                        quantity=item.quantity,
+                        orange=orange,
+                        darkText=darkText,
+                        onDecreaseClick=onDecreaseClick,
+                        onIncreaseClick=onIncreaseClick
+                    )
                     OutlinedButton(
                         onClick=onRemoveClick,
-                        shape=RoundedCornerShape(12.dp)
+                        shape=RoundedCornerShape(14.dp)
                     ){
                         Text(
                             text="Remove",
-                            color=orange
+                            color=orange,
+                            fontWeight=FontWeight.Bold
                         )
                     }
                 }
+            }else{
+                Box(
+                    modifier=Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFFFF7ED), RoundedCornerShape(14.dp))
+                        .padding(horizontal = 12.dp, vertical = 9.dp)
+                ){
+                    Text(
+                        text=if (isCartLocked) {
+                            "Cart is locked. This item cannot be edited."
+                        }else{
+                            "Only ${item.addedByName} can edit this item"
+                        },
+                        style=MaterialTheme.typography.bodySmall,
+                        color=grayText,
+                        fontWeight=FontWeight.SemiBold
+                    )
+                }
             }
-            else{
+        }
+    }
+}
+
+@Composable
+fun QuantityStepper(
+    quantity:Int,
+    orange:Color,
+    darkText:Color,
+    onDecreaseClick:()->Unit,
+    onIncreaseClick:()->Unit
+){
+    Row(
+        verticalAlignment=Alignment.CenterVertically,
+        modifier=Modifier
+            .background(Color(0xFFFFF7ED), RoundedCornerShape(16.dp))
+            .padding(horizontal = 6.dp, vertical = 4.dp)
+    ){
+        OutlinedButton(
+            onClick=onDecreaseClick,
+            shape=RoundedCornerShape(12.dp)
+        ){
+            Text(
+                text="-",
+                color=orange,
+                fontWeight=FontWeight.ExtraBold
+            )
+        }
+        Text(
+            text="$quantity",
+            modifier=Modifier.padding(horizontal = 12.dp),
+            fontWeight=FontWeight.ExtraBold,
+            color=darkText
+        )
+        OutlinedButton(
+            onClick=onIncreaseClick,
+            shape=RoundedCornerShape(12.dp)
+        ){
+            Text(
+                text="+",
+                color=orange,
+                fontWeight=FontWeight.ExtraBold
+            )
+        }
+    }
+}
+
+@Composable
+fun BillSummaryCard(
+    itemTotal:Int,
+    deliveryFee:Int,
+    platformFee:Int,
+    grandTotal:Int,
+    orange:Color,
+    darkText:Color,
+    grayText:Color
+){
+    Card(
+        modifier=Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation=7.dp,
+                shape=RoundedCornerShape(24.dp)
+            ), shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(
+            containerColor=Color.White
+        )
+    ){
+        Column(
+            modifier=Modifier.padding(18.dp)
+        ){
+            Row(
+                modifier=Modifier.fillMaxWidth(),
+                horizontalArrangement=Arrangement.SpaceBetween,
+                verticalAlignment=Alignment.CenterVertically
+            ){
+                Column{
+                    Text(
+                        text="Bill Summary",
+                        style=MaterialTheme.typography.titleMedium,
+                        fontWeight=FontWeight.ExtraBold,
+                        color=darkText
+                    )
+                    Text(
+                        text="Before personal split",
+                        style=MaterialTheme.typography.bodySmall,
+                        color=grayText,
+                        modifier=Modifier.padding(top = 3.dp)
+                    )
+                }
                 Text(
-                    text=if (isCartLocked) {
-                        "Cart is locked. This item cannot be edited."
-                    }
-                    else{
-                        "Only ${item.addedByName} can edit this item"
-                    },
-                    style=MaterialTheme.typography.bodySmall,
-                    color=grayText,
-                    fontWeight=FontWeight.SemiBold,
-                    modifier=Modifier.padding(top = 4.dp)
+                    text="₹$grandTotal",
+                    style=MaterialTheme.typography.titleLarge,
+                    fontWeight=FontWeight.ExtraBold,
+                    color=orange
                 )
             }
+            Spacer(modifier=Modifier.height(14.dp))
+            BillRow(label="Item Total",amount=itemTotal)
+            BillRow(label="Delivery Fee",amount=deliveryFee)
+            BillRow(label="Platform Fee",amount=platformFee)
+            Spacer(modifier=Modifier.height(10.dp))
+            BillRow(
+                label="Grand Total",
+                amount=grandTotal,
+                isBold=true
+            )
         }
     }
 }
@@ -474,19 +719,16 @@ fun BillRow(
             color=if(isBold) darkText else grayText,
             fontWeight=if(isBold){
                 FontWeight.Bold
-            }
-            else{
+            }else{
                 FontWeight.Normal
             }
         )
-
         Text(
             text="₹$amount",
             color=darkText,
             fontWeight=if(isBold){
                 FontWeight.Bold
-            }
-            else{
+            }else{
                 FontWeight.Normal
             }
         )

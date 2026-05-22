@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,38 +39,56 @@ fun CreateSessionScreen(
     onBackClick:()->Unit,
     onSessionCreated:(String,String)->Unit
 ){
-    var hostName by remember {mutableStateOf("")}
-    var sessionCode by remember {mutableStateOf<String?>(null)}
+    var hostName by remember { mutableStateOf("") }
+    var sessionCode by remember { mutableStateOf<String?>(null) }
 
     val orange=Color(0xFFFC8019)
+    val deepOrange=Color(0xFFE95D00)
     val background=Color(0xFFFFF7ED)
     val darkText=Color(0xFF1C1C1C)
     val grayText=Color(0xFF686B78)
     val green=Color(0xFF48C479)
+    val softOrange=Color(0xFFFFE8D2)
 
     Box(
         modifier=Modifier
             .fillMaxSize()
             .background(background)
-            .padding(20.dp)
     ){
         Box(
             modifier=Modifier
+                .fillMaxWidth()
+                .height(260.dp)
+                .background(
+                    Brush.verticalGradient(
+                        colors=listOf(
+                            Color(0xFFFFD2A1),
+                            background
+                        )
+                    )
+                )
+        )
+        Box(
+            modifier=Modifier
                 .align(Alignment.TopEnd)
-                .background(Color(0xFFFFE4C7), CircleShape)
-                .padding(66.dp)
+                .padding(top = 42.dp, end = 22.dp)
+                .background(Color(0x33FFFFFF), CircleShape)
+                .padding(70.dp)
         )
         Column(
-            modifier=Modifier.fillMaxSize()
+            modifier=Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp)
         ){
+            Spacer(modifier=Modifier.height(30.dp))
             Row(
-                modifier=Modifier
-                    .fillMaxWidth()
-                    .padding(top = 18.dp),
+                modifier=Modifier.fillMaxWidth(),
                 horizontalArrangement=Arrangement.SpaceBetween,
-                verticalAlignment=Alignment.CenterVertically
+                verticalAlignment=Alignment.Top
             ){
-                Column{
+                Column(
+                    modifier=Modifier.weight(1f)
+                ){
                     Text(
                         text="Create order",
                         style=MaterialTheme.typography.headlineMedium,
@@ -77,7 +96,7 @@ fun CreateSessionScreen(
                         color=darkText
                     )
                     Text(
-                        text="Start a session and invite your friends",
+                        text="Host a shared food cart for your group",
                         style=MaterialTheme.typography.bodyMedium,
                         color=grayText,
                         modifier=Modifier.padding(top = 4.dp)
@@ -85,6 +104,7 @@ fun CreateSessionScreen(
                 }
                 Box(
                     modifier=Modifier
+                        .shadow(4.dp, RoundedCornerShape(18.dp))
                         .background(Color.White, RoundedCornerShape(18.dp))
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                 ){
@@ -95,49 +115,12 @@ fun CreateSessionScreen(
                     )
                 }
             }
-            Spacer(modifier=Modifier.height(22.dp))
-            Card(
-                modifier=Modifier.fillMaxWidth(),
-                shape=RoundedCornerShape(22.dp),
-                colors=CardDefaults.cardColors(
-                    containerColor=Color.White
-                )
-            ){
-                Column(
-                    modifier=Modifier.padding(18.dp)
-                ){
-                    Text(
-                        text="Session flow",
-                        style=MaterialTheme.typography.titleMedium,
-                        fontWeight=FontWeight.Bold,
-                        color=darkText
-                    )
-                    Spacer(modifier=Modifier.height(14.dp))
-                    CreateInfoRow(
-                        title="Share session code",
-                        subtitle="Friends join your food order using a 6-character code."
-                    )
-                    Spacer(modifier=Modifier.height(10.dp))
-                    CreateInfoRow(
-                        title="Pick restaurant",
-                        subtitle="As host, you choose where the group orders from."
-                    )
-                    Spacer(modifier=Modifier.height(10.dp))
-                    CreateInfoRow(
-                        title="Lock and checkout",
-                        subtitle="Once everyone is ready, lock the cart and proceed."
-                    )
-                }
-            }
-            Spacer(modifier=Modifier.height(16.dp))
+            Spacer(modifier=Modifier.height(26.dp))
             Card(
                 modifier=Modifier
                     .fillMaxWidth()
-                    .shadow(
-                        elevation=7.dp,
-                        shape=RoundedCornerShape(24.dp)
-                    ),
-                shape=RoundedCornerShape(24.dp),
+                    .shadow(8.dp, RoundedCornerShape(28.dp)),
+                shape=RoundedCornerShape(28.dp),
                 colors=CardDefaults.cardColors(
                     containerColor=Color.White
                 )
@@ -145,22 +128,36 @@ fun CreateSessionScreen(
                 Column(
                     modifier=Modifier.padding(20.dp)
                 ){
+                    Box(
+                        modifier=Modifier
+                            .background(softOrange, RoundedCornerShape(50.dp))
+                            .padding(horizontal = 12.dp, vertical = 7.dp)
+                    ){
+                        Text(
+                            text="Step 1 of group order",
+                            color=deepOrange,
+                            style=MaterialTheme.typography.bodySmall,
+                            fontWeight=FontWeight.ExtraBold
+                        )
+                    }
+                    Spacer(modifier=Modifier.height(16.dp))
                     Text(
-                        text="Host details",
-                        style=MaterialTheme.typography.titleMedium,
-                        fontWeight=FontWeight.Bold,
+                        text="What should friends call you?",
+                        style=MaterialTheme.typography.titleLarge,
+                        fontWeight=FontWeight.ExtraBold,
                         color=darkText
                     )
                     Text(
-                        text="Your name will appear in the waiting room, shared cart and bill split.",
+                        text="Your name will appear in the waiting room, cart, and bill split.",
                         style=MaterialTheme.typography.bodyMedium,
                         color=grayText,
-                        modifier=Modifier.padding(top = 6.dp,bottom = 16.dp)
+                        modifier=Modifier.padding(top = 7.dp)
                     )
+                    Spacer(modifier=Modifier.height(18.dp))
                     OutlinedTextField(
                         value=hostName,
                         onValueChange={hostName=it},
-                        label={Text("Your name")},
+                        label={Text("Host name")},
                         singleLine=true,
                         modifier=Modifier.fillMaxWidth()
                     )
@@ -175,25 +172,27 @@ fun CreateSessionScreen(
                         modifier=Modifier
                             .fillMaxWidth()
                             .height(54.dp),
-                        colors=ButtonDefaults.buttonColors(
-                            containerColor=orange
-                        ),
+                        colors=ButtonDefaults.buttonColors(containerColor=orange),
                         shape=RoundedCornerShape(16.dp)
                     ){
                         Text(
                             text="Create Session",
-                            fontWeight=FontWeight.Bold
+                            fontWeight=FontWeight.ExtraBold
                         )
                     }
                 }
             }
+
             if(sessionCode!=null){
                 Spacer(modifier=Modifier.height(16.dp))
                 Card(
                     modifier=Modifier.fillMaxWidth(),
-                    shape=RoundedCornerShape(22.dp),
+                    shape=RoundedCornerShape(24.dp),
                     colors=CardDefaults.cardColors(
                         containerColor=Color.White
+                    ),
+                    elevation=CardDefaults.cardElevation(
+                        defaultElevation=4.dp
                     )
                 ){
                     Row(
@@ -203,14 +202,15 @@ fun CreateSessionScreen(
                         horizontalArrangement=Arrangement.SpaceBetween,
                         verticalAlignment=Alignment.CenterVertically
                     ){
-                        Column{
+                        Column(
+                            modifier=Modifier.weight(1f)
+                        ){
                             Text(
-                                text="Session Created",
+                                text="Session created",
                                 style=MaterialTheme.typography.titleMedium,
-                                fontWeight=FontWeight.Bold,
+                                fontWeight=FontWeight.ExtraBold,
                                 color=darkText
                             )
-
                             Text(
                                 text="Share this code with friends",
                                 style=MaterialTheme.typography.bodySmall,
@@ -219,22 +219,55 @@ fun CreateSessionScreen(
                             )
                         }
 
-                        Text(
-                            text=sessionCode ?: "",
-                            style=MaterialTheme.typography.titleLarge,
-                            fontWeight=FontWeight.ExtraBold,
-                            color=green
-                        )
+                        Box(
+                            modifier=Modifier
+                                .background(Color(0xFFE9F8EF), RoundedCornerShape(16.dp))
+                                .padding(horizontal = 13.dp, vertical = 9.dp)
+                        ){
+                            Text(
+                                text=sessionCode ?: "",
+                                style=MaterialTheme.typography.titleMedium,
+                                fontWeight=FontWeight.ExtraBold,
+                                color=green
+                            )
+                        }
                     }
                 }
             }
             Spacer(modifier=Modifier.weight(1f))
+            Card(
+                modifier=Modifier.fillMaxWidth(),
+                shape=RoundedCornerShape(24.dp),
+                colors=CardDefaults.cardColors(
+                    containerColor=Color.White
+                )
+            ){
+                Column(
+                    modifier=Modifier.padding(16.dp)
+                ){
+                    CreateMiniInfoRow(
+                        text="Friends join with the generated code",
+                        orange=orange,
+                        darkText=darkText
+                    )
+                    Spacer(modifier=Modifier.height(8.dp))
+                    CreateMiniInfoRow(
+                        text="You choose address and restaurant as host",
+                        orange=orange,
+                        darkText=darkText
+                    )
+                }
+            }
+            Spacer(modifier=Modifier.height(12.dp))
             OutlinedButton(
                 onClick=onBackClick,
                 modifier=Modifier
                     .fillMaxWidth()
                     .height(54.dp),
-                shape=RoundedCornerShape(16.dp)
+                shape=RoundedCornerShape(16.dp),
+                colors=ButtonDefaults.outlinedButtonColors(
+                    containerColor=Color.White
+                )
             ){
                 Text(
                     text="Back",
@@ -242,18 +275,17 @@ fun CreateSessionScreen(
                     fontWeight=FontWeight.Bold
                 )
             }
+            Spacer(modifier=Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
-fun CreateInfoRow(
-    title:String,
-    subtitle:String
+fun CreateMiniInfoRow(
+    text:String,
+    orange:Color,
+    darkText:Color
 ){
-    val darkText=Color(0xFF1C1C1C)
-    val grayText=Color(0xFF686B78)
-    val orange=Color(0xFFFC8019)
     Row(
         modifier=Modifier.fillMaxWidth(),
         verticalAlignment=Alignment.CenterVertically
@@ -261,30 +293,21 @@ fun CreateInfoRow(
         Box(
             modifier=Modifier
                 .background(Color(0xFFFFE8D2), CircleShape)
-                .padding(7.dp)
+                .padding(horizontal = 8.dp, vertical = 4.dp)
         ){
             Text(
-                text="•",
+                text="✓",
                 color=orange,
                 fontWeight=FontWeight.ExtraBold
             )
         }
-        Column(
-            modifier=Modifier.padding(start = 12.dp)
-        ){
-            Text(
-                text=title,
-                color=darkText,
-                fontWeight=FontWeight.Bold,
-                style=MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text=subtitle,
-                color=grayText,
-                style=MaterialTheme.typography.bodySmall,
-                modifier=Modifier.padding(top = 2.dp)
-            )
-        }
+        Text(
+            text=text,
+            color=darkText,
+            style=MaterialTheme.typography.bodySmall,
+            fontWeight=FontWeight.SemiBold,
+            modifier=Modifier.padding(start = 10.dp)
+        )
     }
 }
 
