@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -27,6 +28,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.absar.eatsync.ui.components.EatSyncLogo
 
 @Composable
 fun HomeScreen(
@@ -49,7 +51,7 @@ fun HomeScreen(
         Box(
             modifier=Modifier
                 .fillMaxWidth()
-                .height(320.dp)
+                .height(260.dp)
                 .background(
                     Brush.verticalGradient(
                         colors=listOf(
@@ -60,79 +62,110 @@ fun HomeScreen(
                     )
                 )
         )
+
         Box(
             modifier=Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = 54.dp, end = 18.dp)
+                .padding(top = 46.dp, end = 18.dp)
                 .background(Color(0x44FFFFFF), CircleShape)
-                .padding(76.dp)
+                .padding(62.dp)
         )
+
         Box(
             modifier=Modifier
                 .align(Alignment.TopStart)
-                .padding(top = 210.dp, start = 18.dp)
+                .padding(top = 190.dp, start = 18.dp)
                 .background(Color(0x33FC8019), CircleShape)
-                .padding(34.dp)
+                .padding(28.dp)
         )
+
         Column(
             modifier=Modifier
                 .fillMaxSize()
                 .padding(horizontal = 20.dp)
         ){
-            Spacer(modifier=Modifier.height(28.dp))
+            Spacer(modifier=Modifier.height(24.dp))
+
             HomeTopBar(
                 orange=orange,
                 green=green,
                 darkText=darkText,
                 grayText=grayText
             )
-            Spacer(modifier=Modifier.height(28.dp))
-            Text(
-                text="Order food\nwith your group,\nwithout chaos.",
-                style=MaterialTheme.typography.displaySmall,
-                fontWeight=FontWeight.ExtraBold,
-                color=darkText
-            )
-            Text(
-                text="Create one shared cart, let friends add customized items, then split the final bill automatically.",
-                style=MaterialTheme.typography.bodyMedium,
-                color=grayText,
-                modifier=Modifier.padding(top = 10.dp)
-            )
-            Spacer(modifier=Modifier.height(18.dp))
-            HomeLiveCartMock(
-                orange=orange,
-                deepOrange=deepOrange,
-                green=green,
-                darkText=darkText,
-                grayText=grayText,
-                softOrange=softOrange
-            )
-            Spacer(modifier=Modifier.height(14.dp))
-            Row(
-                modifier=Modifier.fillMaxWidth(),
-                horizontalArrangement=Arrangement.spacedBy(10.dp)
+
+            Spacer(modifier=Modifier.height(12.dp))
+
+            LazyColumn(
+                modifier=Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
             ){
-                HomeMiniFeaturePill(
-                    title="Live cart",
-                    subtitle="Realtime sync",
-                    emoji="🛒",
-                    modifier=Modifier.weight(1f)
-                )
-                HomeMiniFeaturePill(
-                    title="Custom items",
-                    subtitle="Add-ons ready",
-                    emoji="🍽️",
-                    modifier=Modifier.weight(1f)
-                )
-                HomeMiniFeaturePill(
-                    title="Bill split",
-                    subtitle="Fair payment",
-                    emoji="💸",
-                    modifier=Modifier.weight(1f)
-                )
+                item{
+                    Text(
+                        text="Order food\nwith your group,\nwithout chaos.",
+                        style=MaterialTheme.typography.headlineLarge,
+                        fontWeight=FontWeight.ExtraBold,
+                        color=darkText
+                    )
+
+                    Text(
+                        text="Create one shared cart, let friends add customized items, then split the final bill automatically.",
+                        style=MaterialTheme.typography.bodyMedium,
+                        color=grayText,
+                        modifier=Modifier.padding(top = 8.dp)
+                    )
+
+                    Spacer(modifier=Modifier.height(14.dp))
+
+                    HomeLiveCartMock(
+                        orange=orange,
+                        deepOrange=deepOrange,
+                        green=green,
+                        darkText=darkText,
+                        grayText=grayText,
+                        softOrange=softOrange
+                    )
+
+                    Spacer(modifier=Modifier.height(12.dp))
+
+                    Row(
+                        modifier=Modifier.fillMaxWidth(),
+                        horizontalArrangement=Arrangement.spacedBy(8.dp)
+                    ){
+                        HomeMiniFeaturePill(
+                            title="Live cart",
+                            subtitle="Realtime",
+                            emoji="🛒",
+                            modifier=Modifier.weight(1f)
+                        )
+
+                        HomeMiniFeaturePill(
+                            title="Add-ons",
+                            subtitle="Custom",
+                            emoji="🍽️",
+                            modifier=Modifier.weight(1f)
+                        )
+
+                        HomeMiniFeaturePill(
+                            title="Bill split",
+                            subtitle="Fair",
+                            emoji="💸",
+                            modifier=Modifier.weight(1f)
+                        )
+                    }
+
+                    Spacer(modifier=Modifier.height(18.dp))
+
+                    HomeQuickFlowCard(
+                        orange=orange,
+                        darkText=darkText,
+                        grayText=grayText
+                    )
+
+                    Spacer(modifier=Modifier.height(16.dp))
+                }
             }
-            Spacer(modifier=Modifier.weight(1f))
+
             HomeBottomActions(
                 orange=orange,
                 darkText=darkText,
@@ -140,7 +173,8 @@ fun HomeScreen(
                 onCreateSessionClick=onCreateSessionClick,
                 onJoinSessionClick=onJoinSessionClick
             )
-            Spacer(modifier=Modifier.height(18.dp))
+
+            Spacer(modifier=Modifier.height(14.dp))
         }
     }
 }
@@ -160,18 +194,11 @@ fun HomeTopBar(
         Row(
             verticalAlignment=Alignment.CenterVertically
         ){
-            Box(
-                modifier=Modifier
-                    .shadow(5.dp, RoundedCornerShape(17.dp))
-                    .background(orange, RoundedCornerShape(17.dp))
-                    .padding(horizontal = 13.dp, vertical = 10.dp)
-            ){
-                Text(
-                    text="ES",
-                    color=Color.White,
-                    fontWeight=FontWeight.ExtraBold
-                )
-            }
+            EatSyncLogo(
+                size = 54.dp,
+                cornerRadius = 18.dp
+            )
+
             Column(
                 modifier=Modifier.padding(start = 10.dp)
             ){
@@ -181,6 +208,7 @@ fun HomeTopBar(
                     fontWeight=FontWeight.ExtraBold,
                     color=darkText
                 )
+
                 Text(
                     text="Group food ordering",
                     style=MaterialTheme.typography.bodySmall,
@@ -188,6 +216,7 @@ fun HomeTopBar(
                 )
             }
         }
+
         Box(
             modifier=Modifier
                 .shadow(3.dp, RoundedCornerShape(50.dp))
@@ -217,16 +246,16 @@ fun HomeLiveCartMock(
         modifier=Modifier
             .fillMaxWidth()
             .shadow(
-                elevation=9.dp,
-                shape=RoundedCornerShape(30.dp)
+                elevation=7.dp,
+                shape=RoundedCornerShape(26.dp)
             ),
-        shape=RoundedCornerShape(30.dp),
+        shape=RoundedCornerShape(26.dp),
         colors=CardDefaults.cardColors(
             containerColor=Color.White
         )
     ){
         Column(
-            modifier=Modifier.padding(18.dp)
+            modifier=Modifier.padding(15.dp)
         ){
             Row(
                 modifier=Modifier.fillMaxWidth(),
@@ -240,6 +269,7 @@ fun HomeLiveCartMock(
                         style=MaterialTheme.typography.titleMedium,
                         fontWeight=FontWeight.ExtraBold
                     )
+
                     Text(
                         text="2 friends ordering together",
                         color=grayText,
@@ -247,10 +277,11 @@ fun HomeLiveCartMock(
                         modifier=Modifier.padding(top = 3.dp)
                     )
                 }
+
                 Box(
                     modifier=Modifier
                         .background(Color(0xFFE9F8EF), RoundedCornerShape(50.dp))
-                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                        .padding(horizontal = 9.dp, vertical = 5.dp)
                 ){
                     Text(
                         text="SYNCED",
@@ -260,7 +291,9 @@ fun HomeLiveCartMock(
                     )
                 }
             }
-            Spacer(modifier=Modifier.height(14.dp))
+
+            Spacer(modifier=Modifier.height(12.dp))
+
             HomeCartMiniRow(
                 name="Hyderabadi Veg Dum Biryani",
                 subtitle="Absar • Add-ons selected",
@@ -270,7 +303,9 @@ fun HomeLiveCartMock(
                 grayText=grayText,
                 softOrange=softOrange
             )
-            Spacer(modifier=Modifier.height(10.dp))
+
+            Spacer(modifier=Modifier.height(8.dp))
+
             HomeCartMiniRow(
                 name="Coke",
                 subtitle="Tenz • 1 item",
@@ -280,12 +315,14 @@ fun HomeLiveCartMock(
                 grayText=grayText,
                 softOrange=softOrange
             )
-            Spacer(modifier=Modifier.height(14.dp))
+
+            Spacer(modifier=Modifier.height(12.dp))
+
             Row(
                 modifier=Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFFFFF7ED), RoundedCornerShape(18.dp))
-                    .padding(12.dp),
+                    .background(Color(0xFFFFF7ED), RoundedCornerShape(16.dp))
+                    .padding(11.dp),
                 horizontalArrangement=Arrangement.SpaceBetween,
                 verticalAlignment=Alignment.CenterVertically
             ){
@@ -296,6 +333,7 @@ fun HomeLiveCartMock(
                         style=MaterialTheme.typography.bodySmall,
                         fontWeight=FontWeight.SemiBold
                     )
+
                     Text(
                         text="Ready for bill split",
                         color=deepOrange,
@@ -304,6 +342,7 @@ fun HomeLiveCartMock(
                         modifier=Modifier.padding(top = 2.dp)
                     )
                 }
+
                 Text(
                     text="₹528",
                     color=darkText,
@@ -336,8 +375,8 @@ fun HomeCartMiniRow(
         ){
             Box(
                 modifier=Modifier
-                    .background(softOrange, RoundedCornerShape(15.dp))
-                    .padding(horizontal = 10.dp, vertical = 8.dp)
+                    .background(softOrange, RoundedCornerShape(14.dp))
+                    .padding(horizontal = 9.dp, vertical = 7.dp)
             ){
                 Text(
                     text="ITEM",
@@ -346,6 +385,7 @@ fun HomeCartMiniRow(
                     fontWeight=FontWeight.ExtraBold
                 )
             }
+
             Column(
                 modifier=Modifier.padding(start = 10.dp)
             ){
@@ -353,20 +393,25 @@ fun HomeCartMiniRow(
                     text=name,
                     color=darkText,
                     style=MaterialTheme.typography.bodyMedium,
-                    fontWeight=FontWeight.ExtraBold
+                    fontWeight=FontWeight.ExtraBold,
+                    maxLines=1
                 )
+
                 Text(
                     text=subtitle,
                     color=grayText,
                     style=MaterialTheme.typography.bodySmall,
-                    modifier=Modifier.padding(top = 2.dp)
+                    modifier=Modifier.padding(top = 2.dp),
+                    maxLines=1
                 )
             }
         }
+
         Text(
             text=price,
             color=darkText,
-            fontWeight=FontWeight.ExtraBold
+            fontWeight=FontWeight.ExtraBold,
+            modifier=Modifier.padding(start = 8.dp)
         )
     }
 }
@@ -383,33 +428,119 @@ fun HomeMiniFeaturePill(
 
     Card(
         modifier=modifier,
-        shape=RoundedCornerShape(22.dp),
-        colors=CardDefaults.cardColors(containerColor=Color.White),
+        shape=RoundedCornerShape(20.dp),
+        colors=CardDefaults.cardColors(
+            containerColor=Color.White
+        ),
         elevation=CardDefaults.cardElevation(
             defaultElevation=3.dp
         )
     ){
         Column(
-            modifier=Modifier.padding(12.dp)
+            modifier=Modifier.padding(10.dp)
         ){
             Text(
                 text=emoji,
                 style=MaterialTheme.typography.titleMedium
             )
+
             Text(
                 text=title,
                 color=darkText,
                 fontWeight=FontWeight.ExtraBold,
                 style=MaterialTheme.typography.bodySmall,
-                modifier=Modifier.padding(top = 6.dp)
+                modifier=Modifier.padding(top = 5.dp),
+                maxLines=1
             )
+
             Text(
                 text=subtitle,
                 color=grayText,
                 style=MaterialTheme.typography.labelSmall,
-                modifier=Modifier.padding(top = 2.dp)
+                modifier=Modifier.padding(top = 2.dp),
+                maxLines=1
             )
         }
+    }
+}
+
+@Composable
+fun HomeQuickFlowCard(
+    orange:Color,
+    darkText:Color,
+    grayText:Color
+){
+    Card(
+        modifier=Modifier.fillMaxWidth(),
+        shape=RoundedCornerShape(22.dp),
+        colors=CardDefaults.cardColors(
+            containerColor=Color.White
+        ),
+        elevation=CardDefaults.cardElevation(
+            defaultElevation=3.dp
+        )
+    ){
+        Column(
+            modifier=Modifier.padding(14.dp)
+        ){
+            Text(
+                text="How it works",
+                color=darkText,
+                style=MaterialTheme.typography.titleSmall,
+                fontWeight=FontWeight.ExtraBold
+            )
+
+            Text(
+                text="Host creates a session → friends join → everyone adds food → bill splits automatically.",
+                color=grayText,
+                style=MaterialTheme.typography.bodySmall,
+                modifier=Modifier.padding(top = 5.dp)
+            )
+
+            Spacer(modifier=Modifier.height(12.dp))
+
+            Row(
+                modifier=Modifier.fillMaxWidth(),
+                horizontalArrangement=Arrangement.SpaceBetween
+            ){
+                HomeFlowDot("1", "Host", orange)
+                HomeFlowDot("2", "Join", orange)
+                HomeFlowDot("3", "Add", orange)
+                HomeFlowDot("4", "Split", orange)
+            }
+        }
+    }
+}
+
+@Composable
+fun HomeFlowDot(
+    number:String,
+    label:String,
+    orange:Color
+){
+    Column(
+        horizontalAlignment=Alignment.CenterHorizontally
+    ){
+        Box(
+            modifier=Modifier
+                .background(Color(0xFFFFE8D2), CircleShape)
+                .padding(horizontal = 10.dp, vertical = 6.dp)
+        ){
+            Text(
+                text=number,
+                color=orange,
+                fontWeight=FontWeight.ExtraBold,
+                style=MaterialTheme.typography.bodySmall
+            )
+        }
+
+        Text(
+            text=label,
+            color=Color(0xFF686B78),
+            style=MaterialTheme.typography.labelSmall,
+            fontWeight=FontWeight.SemiBold,
+            modifier=Modifier.padding(top = 4.dp)
+        )
     }
 }
 
@@ -425,16 +556,16 @@ fun HomeBottomActions(
         modifier=Modifier
             .fillMaxWidth()
             .shadow(
-                elevation=9.dp,
-                shape=RoundedCornerShape(28.dp)
+                elevation=8.dp,
+                shape=RoundedCornerShape(26.dp)
             ),
-        shape=RoundedCornerShape(28.dp),
+        shape=RoundedCornerShape(26.dp),
         colors=CardDefaults.cardColors(
             containerColor=Color.White
         )
     ){
         Column(
-            modifier=Modifier.padding(18.dp)
+            modifier=Modifier.padding(15.dp)
         ){
             Text(
                 text="Start ordering",
@@ -442,18 +573,21 @@ fun HomeBottomActions(
                 style=MaterialTheme.typography.titleMedium,
                 fontWeight=FontWeight.ExtraBold
             )
+
             Text(
                 text="Host a new cart or join your friend’s session.",
                 color=grayText,
                 style=MaterialTheme.typography.bodySmall,
-                modifier=Modifier.padding(top = 4.dp)
+                modifier=Modifier.padding(top = 3.dp)
             )
-            Spacer(modifier=Modifier.height(14.dp))
+
+            Spacer(modifier=Modifier.height(12.dp))
+
             Button(
                 onClick=onCreateSessionClick,
                 modifier=Modifier
                     .fillMaxWidth()
-                    .height(54.dp),
+                    .height(52.dp),
                 colors=ButtonDefaults.buttonColors(
                     containerColor=orange
                 ),
@@ -464,12 +598,14 @@ fun HomeBottomActions(
                     fontWeight=FontWeight.ExtraBold
                 )
             }
-            Spacer(modifier=Modifier.height(10.dp))
+
+            Spacer(modifier=Modifier.height(9.dp))
+
             OutlinedButton(
                 onClick=onJoinSessionClick,
                 modifier=Modifier
                     .fillMaxWidth()
-                    .height(54.dp),
+                    .height(52.dp),
                 shape=RoundedCornerShape(16.dp),
                 colors=ButtonDefaults.outlinedButtonColors(
                     containerColor=Color.White
