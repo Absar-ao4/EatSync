@@ -1,56 +1,46 @@
 # EatSync
 
-EatSync is a collaborative group food-ordering Android app where users can create or join a session, select a restaurant, add food items to a shared cart, customize selected menu items with variants/add-ons, and split the bill user-wise.
+EatSync is a collaborative group food-ordering Android app where users can create or join a session, select a restaurant, add food items to a shared cart, customize menu items with variants/add-ons, and split the bill user-wise.
 
-The app is built to solve a common group-ordering problem: when friends or college groups order together, one person usually handles the restaurant selection, cart, price tracking, and bill split manually. EatSync brings this flow into a shared real-time session.
+The app solves a common group-ordering problem: when friends or college groups order together, one person usually manages restaurant selection, cart updates, item prices, and bill splitting manually. EatSync turns this into a shared real-time session.
 
 ---
 
 ## Features
 
-### Multi-user session flow
+### Multi-user Session Flow
 - Host can create a session with a unique session code.
 - Participants can join the same session using the code.
 - Session state is synced using Firebase Realtime Database.
 
-### Shared restaurant selection
+### Shared Restaurant Selection
 - Host selects a delivery address.
 - Host selects a restaurant.
 - Selected restaurant is synced to participants.
-- If the restaurant changes, the cart/session flow updates safely.
+- Restaurant/menu flow is handled through backend APIs.
 
-### Real-time shared cart
+### Real-time Shared Cart
 - Users can add items to a shared cart.
-- Quantity can be increased/decreased.
-- Users can remove their own items.
+- Quantity can be increased or decreased.
+- Users can remove only their own items.
 - Cart updates are synced across devices in real time.
 
-### Menu and customization flow
+### Menu and Customization Flow
 - Restaurant menus are fetched from the Spring Boot backend.
-- Menu items show:
-  - Name
-  - Description
-  - Price
-  - Veg / non-veg status
-  - Food image
-  - Customizable / add-on tags
+- Menu items show name, description, price, veg/non-veg status, image, and customization tags.
 - Items with variants/add-ons open a customization screen.
-- Customization screen supports:
-  - Variant selection
-  - Add-on selection
-  - Dynamic final price calculation
-  - Customized item description in cart
+- Customization screen supports variant selection, add-on selection, dynamic final price calculation, customized item description in cart, and multiple customized versions of the same item.
 
-### Bill split
-- Food cost is paid by the person who added the item.
+### Bill Split
+- Food cost is assigned to the user who added the item.
 - Delivery fee and platform fee are shared equally.
 - Each participant can mark themselves ready.
-- Host can lock the cart once everyone is ready.
-- Bill split screen shows customized item details and final user-wise amount.
+- Host can lock the cart once the order is ready for checkout.
+- Bill split screen shows item-wise and user-wise payable amount.
 
-### Public backend deployment
-- Spring Boot backend is deployed on Railway.
-- Android app fetches food data from the deployed backend instead of localhost.
+### Public Backend Deployment
+- Spring Boot backend is deployed on Render.
+- Android app fetches food/menu/customization data from the deployed backend.
 - App works across different devices and networks.
 
 ---
@@ -67,10 +57,11 @@ The app is built to solve a common group-ordering problem: when friends or colle
 - Coil for image loading
 
 ### Backend
-- Java
+- Java 21
 - Spring Boot
 - REST APIs
-- Railway deployment
+- Docker
+- Render deployment
 
 ### Realtime Sync
 - Firebase Realtime Database
@@ -88,29 +79,7 @@ Android App
    |
    | Retrofit
    v
-Spring Boot Backend on Railway
-   |
-   | Mapped food APIs using MCP-tested data
-   v
-Restaurant / Menu / Customization Data
-
-
-Android App
-   |
-   | Firebase Realtime Database
-   v
-Shared Session + Shared Cart Sync
-```
----
-
-## Architecture
-
-```text
-Android App
-   |
-   | Retrofit
-   v
-Spring Boot Backend on Railway
+Spring Boot Backend on Render
    |
    | Mapped food APIs using MCP-tested data
    v
@@ -157,22 +126,34 @@ Checkout
 Base URL:
 
 ```text
-https://eatsync-production.up.railway.app
+https://eatsync-v31g.onrender.com
 ```
 
-### Get addresses
+### Health Check
+
+```http
+GET /api/health
+```
+
+Example:
+
+```text
+https://eatsync-v31g.onrender.com/api/health
+```
+
+### Get Addresses
 
 ```http
 GET /api/food/addresses
 ```
 
-### Get restaurants
+### Get Restaurants
 
 ```http
 GET /api/food/restaurants
 ```
 
-### Get menu items by restaurant
+### Get Menu Items by Restaurant
 
 ```http
 GET /api/food/menu/{restaurantId}
@@ -184,7 +165,7 @@ Example:
 GET /api/food/menu/1256056
 ```
 
-### Get item customization details
+### Get Item Customization Details
 
 ```http
 GET /api/food/menu-item-details/{restaurantId}/{itemId}
@@ -243,13 +224,13 @@ Planned next step:
 ## Key Highlights
 
 - Real-time collaborative shared cart using Firebase
-- Public Spring Boot backend deployed on Railway
+- Public Spring Boot backend deployed on Render
 - Swiggy MCP-tested restaurant/menu/customization data
 - Variant and add-on selection flow
-- Add-on price calculation
+- Dynamic add-on price calculation
 - User-wise bill splitting
 - Cart locking and ready status flow
-- Works across different devices
+- Works across different devices and networks
 
 ---
 
@@ -265,6 +246,7 @@ Planned next step:
 - Order tracking and ETA updates
 - Better checkout screen with payment status
 - Session expiry and participant management
+- Login, authentication, and user profile support
 
 ---
 
